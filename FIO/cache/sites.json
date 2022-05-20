@@ -1,0 +1,369 @@
+{
+	"DUDE112113": {
+		"Sites": [
+			{
+				"Buildings": [
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 100
+							}
+						],
+						"RepairMaterials": [],
+						"BuildingCreated": 1651898616042,
+						"BuildingId": "9cd1ec51794edc14236e0cad6fd0bfee",
+						"BuildingName": "coreModule",
+						"BuildingTicker": "CM",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994435906410217
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 39
+							}
+						],
+						"RepairMaterials": [],
+						"BuildingCreated": 1651899278700,
+						"BuildingId": "a991a433900ffd4bd248b391028493ea",
+						"BuildingName": "habitationPioneer",
+						"BuildingTicker": "HB1",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994438886642456
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 39
+							}
+						],
+						"RepairMaterials": [],
+						"BuildingCreated": 1651926132224,
+						"BuildingId": "f5426ff0bdb4966f6e71ba25036670eb",
+						"BuildingName": "habitationPioneer",
+						"BuildingTicker": "HB1",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994560480117798
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 2
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 39
+							},
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							}
+						],
+						"RepairMaterials": [
+							{
+								"MaterialId": "334f3510e3265410da15174160fbf8f5",
+								"MaterialName": "basicWindow",
+								"MaterialTicker": "BTA",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 1
+							}
+						],
+						"BuildingCreated": 1651926138350,
+						"BuildingId": "55919dea450ede38cf6d1314f6b38e9a",
+						"BuildingName": "incinerator",
+						"BuildingTicker": "INC",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994560480117798
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 2
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 39
+							}
+						],
+						"RepairMaterials": [
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "334f3510e3265410da15174160fbf8f5",
+								"MaterialName": "basicWindow",
+								"MaterialTicker": "BTA",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							}
+						],
+						"BuildingCreated": 1651899329347,
+						"BuildingId": "34c24ea7d2fa3b3b2d207c50901173bf",
+						"BuildingName": "incinerator",
+						"BuildingTicker": "INC",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994438886642456
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 119
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 3
+							}
+						],
+						"RepairMaterials": [
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							}
+						],
+						"BuildingCreated": 1651899315118,
+						"BuildingId": "67e57f5ead631944184e3b9239e085db",
+						"BuildingName": "farm",
+						"BuildingTicker": "FRM",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994438886642456
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 119
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 3
+							}
+						],
+						"RepairMaterials": [
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							}
+						],
+						"BuildingCreated": 1651899319728,
+						"BuildingId": "ad63a68b687ce39cb80eae773cab9af2",
+						"BuildingName": "farm",
+						"BuildingTicker": "FRM",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994438886642456
+					},
+					{
+						"ReclaimableMaterials": [
+							{
+								"MaterialId": "63b98e9700f6630cbfd9c824e0882388",
+								"MaterialName": "basicBulkhead",
+								"MaterialTicker": "BBH",
+								"MaterialAmount": 3
+							},
+							{
+								"MaterialId": "6bbdf7d0503153753c8cb23653a4d22b",
+								"MaterialName": "basicStructuralElements",
+								"MaterialTicker": "BSE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "420b38d32301dfe56403d1f3967d5b86",
+								"MaterialName": "basicDeckElements",
+								"MaterialTicker": "BDE",
+								"MaterialAmount": 1
+							},
+							{
+								"MaterialId": "cc5fb1618f0506e80bfbcee9ae2605ab",
+								"MaterialName": "mineralConstructionGranulate",
+								"MaterialTicker": "MCG",
+								"MaterialAmount": 39
+							}
+						],
+						"RepairMaterials": [],
+						"BuildingCreated": 1651899291035,
+						"BuildingId": "047a7245796c262e93f83abb514331fc",
+						"BuildingName": "habitationPioneer",
+						"BuildingTicker": "HB1",
+						"BuildingLastRepair": null,
+						"Condition": 0.9994438886642456
+					}
+				],
+				"SiteId": "73f33f699e2d191b87a79f8d83177a94",
+				"PlanetId": "99eb57fefd18101662bf834cbeea34ed",
+				"PlanetIdentifier": "VH-331a",
+				"PlanetName": "Promitor",
+				"PlanetFoundedEpochMs": 1651898616033,
+				"InvestedPermits": 1,
+				"MaximumPermits": 3
+			}
+		],
+		"UserNameSubmitted": "DUDE112113",
+		"Timestamp": "2022-05-15T20:55:57.113844"
+	}
+}

@@ -1,0 +1,289 @@
+{
+	"C": {
+		"IC1": {
+			"BuyingOrders": [
+				{
+					"OrderId": "73d6f4e7a49826ba2b4e236ed07c8d96",
+					"CompanyId": "6ea1b5c38bd902b89fb2432459b7dbe7",
+					"CompanyName": "Dangerduck's Delivery Delight",
+					"CompanyCode": "DDD3",
+					"ItemCount": 33,
+					"ItemCost": 253.0399932861328
+				},
+				{
+					"OrderId": "475302610cedeac66ca03858c34ea8f3",
+					"CompanyId": "d53a2b0fba151ce12f1554af82741d5a",
+					"CompanyName": "Wolfpack Industries",
+					"CompanyCode": "WLFP",
+					"ItemCount": 75,
+					"ItemCost": 253.02999877929688
+				},
+				{
+					"OrderId": "0224d1878ab68c9df6fa6f385232a633",
+					"CompanyId": "76d40a729166ec2d61217e18df128ea3",
+					"CompanyName": "Reptilian Dairy Ventures LP",
+					"CompanyCode": "DD11",
+					"ItemCount": 29,
+					"ItemCost": 253.00999450683594
+				},
+				{
+					"OrderId": "71e5e0bde1f2699b1677ebf25edc33f7",
+					"CompanyId": "6513c012c7cf0b5e46c1e677984f5b79",
+					"CompanyName": "Drax Industries",
+					"CompanyCode": "DRAX",
+					"ItemCount": 440,
+					"ItemCost": 252.0
+				},
+				{
+					"OrderId": "49578c6e4d26cf936f14d947acce6d14",
+					"CompanyId": "979f9e37f69b72cc4d429925455cffe0",
+					"CompanyName": "Drastic Manufacturing",
+					"CompanyCode": "DMNF",
+					"ItemCount": 557,
+					"ItemCost": 250.0
+				},
+				{
+					"OrderId": "dffd17e22943e97c3084fe5ee5dec1a3",
+					"CompanyId": "c5ab5339f88a9032febf94e2f305db88",
+					"CompanyName": "NoWay",
+					"CompanyCode": "NOWA",
+					"ItemCount": 100,
+					"ItemCost": 231.0
+				},
+				{
+					"OrderId": "5c1b4762c1446832750f08c45c9b49fe",
+					"CompanyId": "6513c012c7cf0b5e46c1e677984f5b79",
+					"CompanyName": "Drax Industries",
+					"CompanyCode": "DRAX",
+					"ItemCount": 262,
+					"ItemCost": 253.0
+				},
+				{
+					"OrderId": "e900807aaefb8680f58f1350289be3d7",
+					"CompanyId": "c5ab5339f88a9032febf94e2f305db88",
+					"CompanyName": "NoWay",
+					"CompanyCode": "NOWA",
+					"ItemCount": 100,
+					"ItemCost": 251.0
+				},
+				{
+					"OrderId": "d55a957a01b637b7d79e1681b82b3d16",
+					"CompanyId": "6513c012c7cf0b5e46c1e677984f5b79",
+					"CompanyName": "Drax Industries",
+					"CompanyCode": "DRAX",
+					"ItemCount": 383,
+					"ItemCost": 246.0
+				},
+				{
+					"OrderId": "4f41d8ffa31b131230ac2a69ed8a5854",
+					"CompanyId": "04cbde1cb95d0103c404e33033d35db8",
+					"CompanyName": "Hare Enterprises Inc.",
+					"CompanyCode": "HEH",
+					"ItemCount": 222,
+					"ItemCost": 245.0
+				},
+				{
+					"OrderId": "27746f2141993dbb700e11f4071a47cf",
+					"CompanyId": "04cbde1cb95d0103c404e33033d35db8",
+					"CompanyName": "Hare Enterprises Inc.",
+					"CompanyCode": "HEH",
+					"ItemCount": 113,
+					"ItemCost": 230.0
+				},
+				{
+					"OrderId": "07164fcdab6792dbb59916879144c8fd",
+					"CompanyId": "1fa3166da90099ab3183cb37564d9d91",
+					"CompanyName": "Mumzhar Industries",
+					"CompanyCode": "MZHR",
+					"ItemCount": 2000,
+					"ItemCost": 230.0
+				},
+				{
+					"OrderId": "b41d14c41db7b1d3857803a6efe12fcd",
+					"CompanyId": "f66fd1a9a46e4d33ccd7619c3e8d8089",
+					"CompanyName": "Insitor Cooperative Market Maker",
+					"CompanyCode": "ICMM",
+					"ItemCount": null,
+					"ItemCost": 225.0
+				}
+			],
+			"SellingOrders": [
+				{
+					"OrderId": "8cc82d6c0f7035357114918081d1d5c9",
+					"CompanyId": "5710c14d333ad72a7a502fa40d854505",
+					"CompanyName": "FCrop",
+					"CompanyCode": "FCRP",
+					"ItemCount": 14,
+					"ItemCost": 279.3900146484375
+				},
+				{
+					"OrderId": "9e1b20fe1a5996bb964200de7c62030f",
+					"CompanyId": "d2b11009b4d4d0f556e660ca8a54e638",
+					"CompanyName": "Zen Interstellar Propellant",
+					"CompanyCode": "ZIPP",
+					"ItemCount": 53,
+					"ItemCost": 279.3999938964844
+				},
+				{
+					"OrderId": "50bd5a4a31b003dddc7522753019dff6",
+					"CompanyId": "8dac52fae0ecff98ecd60e6250a041f4",
+					"CompanyName": "Mikal Interstellar Corporation",
+					"CompanyCode": "MIC",
+					"ItemCount": 58,
+					"ItemCost": 300.0
+				},
+				{
+					"OrderId": "2c6e6f3f0dab083665a60bced7000edc",
+					"CompanyId": "96505a7e64d81ce5c18b1f21a151c0f9",
+					"CompanyName": "DiscoInferno",
+					"CompanyCode": "DSC",
+					"ItemCount": 100,
+					"ItemCost": 300.0
+				},
+				{
+					"OrderId": "f8a4b20b644022d472c489e9b3ec5cba",
+					"CompanyId": "0b5e0b50fe1d220adfced0f2ee8531db",
+					"CompanyName": "Thingy Corp",
+					"CompanyCode": "TYC",
+					"ItemCount": 16,
+					"ItemCost": 325.0
+				},
+				{
+					"OrderId": "ddbdfee44d0b330536d39edd0f5f5013",
+					"CompanyId": "88842ee09ebb07722d27c911688c2678",
+					"CompanyName": "ERTHMVRS",
+					"CompanyCode": "ETMV",
+					"ItemCount": 87,
+					"ItemCost": 279.3800048828125
+				},
+				{
+					"OrderId": "b681fe0de2c661f9d4e719851b2002c4",
+					"CompanyId": "f8a5b2d5cbaaaafac3fd3008c66d1e71",
+					"CompanyName": "Ecagos Fortuna",
+					"CompanyCode": "EGF",
+					"ItemCount": 16,
+					"ItemCost": 279.3800048828125
+				},
+				{
+					"OrderId": "8dca0700fac87c90e2caca1c006a1671",
+					"CompanyId": "a4f308b2ec755f4478da32f72cbf7365",
+					"CompanyName": "Awkward People Inc.",
+					"CompanyCode": "API",
+					"ItemCount": 966,
+					"ItemCost": 300.0
+				},
+				{
+					"OrderId": "8d624955fc2772439680bf39d1fb1ffd",
+					"CompanyId": "861590a3f5095747a11cf94202fe0551",
+					"CompanyName": "Stellar Carbon Farming",
+					"CompanyCode": "SCF",
+					"ItemCount": 52,
+					"ItemCost": 290.0
+				},
+				{
+					"OrderId": "d250160f0834bd5480a0818b68179fa9",
+					"CompanyId": "04cbde1cb95d0103c404e33033d35db8",
+					"CompanyName": "Hare Enterprises Inc.",
+					"CompanyCode": "HEH",
+					"ItemCount": 222,
+					"ItemCost": 325.0
+				},
+				{
+					"OrderId": "be14118ac192997ea5a6990f99be6773",
+					"CompanyId": "a4f308b2ec755f4478da32f72cbf7365",
+					"CompanyName": "Awkward People Inc.",
+					"CompanyCode": "API",
+					"ItemCount": 200,
+					"ItemCost": 333.3299865722656
+				},
+				{
+					"OrderId": "77c267056952ac82372a826e5eab1846",
+					"CompanyId": "e4bbdb221e46aa510c59a69db1ee0264",
+					"CompanyName": "Protostar",
+					"CompanyCode": "PTS",
+					"ItemCount": 71,
+					"ItemCost": 279.45001220703125
+				},
+				{
+					"OrderId": "3da2e60fd6a5e857d1eee761cde48a63",
+					"CompanyId": "f11ebdeeb58dcbf023d2568fb4b00eb6",
+					"CompanyName": "O'Hare Air",
+					"CompanyCode": "OHAR",
+					"ItemCount": 36,
+					"ItemCost": 279.45001220703125
+				},
+				{
+					"OrderId": "9713cda899ab5f8d5dfbe997000f611d",
+					"CompanyId": "3853a8d4e374b3eef3e20b4c5ac6fd72",
+					"CompanyName": "REETEK CORP",
+					"CompanyCode": "RECO",
+					"ItemCount": 80,
+					"ItemCost": 279.5
+				},
+				{
+					"OrderId": "9df1ee953fd44265bdc085dccbebf601",
+					"CompanyId": "427f5469da8c49db75a6d161af1a1de5",
+					"CompanyName": "HyramGraff Inc",
+					"CompanyCode": "GRAF",
+					"ItemCount": 32,
+					"ItemCost": 280.0
+				},
+				{
+					"OrderId": "e0c607e46728831c9e93019b3727255d",
+					"CompanyId": "8ad86c73af85aaea91be16d6f80fe3d1",
+					"CompanyName": "TatsuToraCarbonInc",
+					"CompanyCode": "TTCI",
+					"ItemCount": 29,
+					"ItemCost": 282.0
+				},
+				{
+					"OrderId": "ebc7f374ad02b2371638cbc6d08a008a",
+					"CompanyId": "a4f308b2ec755f4478da32f72cbf7365",
+					"CompanyName": "Awkward People Inc.",
+					"CompanyCode": "API",
+					"ItemCount": 1296,
+					"ItemCost": 300.0
+				},
+				{
+					"OrderId": "b8c25af637a447b16e77b53e00fb53a8",
+					"CompanyId": "7f84cd2b12015c351755da2008078566",
+					"CompanyName": "METWELL2",
+					"CompanyCode": "WELL",
+					"ItemCount": 99,
+					"ItemCost": 300.0
+				}
+			],
+			"CXDataModelId": "a0254ad83a2d607391f3b07eae043931",
+			"MaterialName": "carbon",
+			"MaterialTicker": "C",
+			"MaterialId": "4bbcc7dc5dd16e9af90528ed04d9c6ba",
+			"ExchangeName": "Hortus Station Commodity Exchange",
+			"ExchangeCode": "IC1",
+			"Currency": "ICA",
+			"Previous": null,
+			"Price": 279.3800048828125,
+			"PriceTimeEpochMs": 1653000461819,
+			"High": 279.45001220703125,
+			"AllTimeHigh": 1300.0,
+			"Low": 253.0,
+			"AllTimeLow": 225.0,
+			"Ask": 279.3800048828125,
+			"AskCount": 87,
+			"Bid": 253.0399932861328,
+			"BidCount": 33,
+			"Supply": 3427,
+			"Demand": 4414,
+			"Traded": 561,
+			"VolumeAmount": 149173.046875,
+			"PriceAverage": 264.6099853515625,
+			"NarrowPriceBandLow": 225.0,
+			"NarrowPriceBandHigh": 661.52001953125,
+			"WidePriceBandLow": 225.0,
+			"WidePriceBandHigh": 661.52001953125,
+			"MMBuy": 225.0,
+			"MMSell": null,
+			"UserNameSubmitted": "MATRIXMAGE",
+			"Timestamp": "2022-05-19T22:48:09.059766"
+		}
+	}
+}
