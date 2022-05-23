@@ -35,7 +35,7 @@ class MaterialExchange:
 		self.buyingOrders = []
 		for order in json["BuyingOrders"]:
 			self.buyingOrders.append(MaterialExchangeOrder(order, self, fio))
-		self.buyingOrders.sort()
+		self.buyingOrders.sort(reverse=True)
 		self.sellingOrders = json["SellingOrders"]
 		self.sellingOrders = []
 		for order in json["SellingOrders"]:
