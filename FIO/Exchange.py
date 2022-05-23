@@ -1,9 +1,11 @@
+from functools import total_ordering
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 	from .FIO import FIO
 
 
+@total_ordering
 class MaterialExchangeOrder:
 	def __init__(self, json: dict, materialExchange: "MaterialExchange", fio: "FIO"):
 		self.materialExchange = materialExchange
@@ -20,6 +22,12 @@ class MaterialExchangeOrder:
 	def __hash__(self):
 		return hash(self.orderId)
 
+	def __lt__(self, other: "MaterialExchangeOrder"):
+		return self.itemCost < other.itemCost
+
+	def __eq__(self, other: "MaterialExchangeOrder"):
+		return self.itemCost == other.itemCost
+
 
 class MaterialExchange:
 	def __init__(self, json: dict, fio: "FIO"):
@@ -27,10 +35,12 @@ class MaterialExchange:
 		self.buyingOrders = []
 		for order in json["BuyingOrders"]:
 			self.buyingOrders.append(MaterialExchangeOrder(order, self, fio))
+		self.buyingOrders.sort()
 		self.sellingOrders = json["SellingOrders"]
 		self.sellingOrders = []
 		for order in json["SellingOrders"]:
 			self.sellingOrders.append(MaterialExchangeOrder(order, self, fio))
+		self.sellingOrders.sort(reverse=True)
 		self.cxDataModelId = json["CXDataModelId"]
 		self.exchangeName = json["ExchangeName"]
 		self.exchangeCode = json["ExchangeCode"]
