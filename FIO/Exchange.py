@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import total_ordering
 from typing import TYPE_CHECKING
 
@@ -27,6 +28,10 @@ class MaterialExchangeOrder:
 
 	def __eq__(self, other: "MaterialExchangeOrder"):
 		return self.itemCost == other.itemCost
+
+	def format(self):
+		countStr = str(self.itemCount) if self.itemCount is not None else "∞"
+		return f"{self.itemCost:.2f} {self.materialExchange.currency} {countStr:>4}x{self.materialExchange.material.ticker} by {self.companyName}"
 
 
 class MaterialExchange:
@@ -76,6 +81,15 @@ class MaterialExchange:
 	def __hash__(self):
 		return hash(self.cxDataModelId)
 
+	@property
+	def timedelta(self):
+		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+
+	def formatTimedelta(self):
+		delta = self.timedelta
+		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
+		return f"{days}days {hours}h {minutes}m"
+
 
 class Exchange:
 	def __init__(self, json: dict, fio: "FIO"):
@@ -109,6 +123,15 @@ class Exchange:
 
 	def __hash__(self):
 		return hash(self.comexId)
+
+	@property
+	def timedelta(self):
+		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+
+	def formatTimedelta(self):
+		delta = self.timedelta
+		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
+		return f"{days}days {hours}h {minutes}m"
 
 	def getMaterialExchange(self, ticker: str):
 		return MaterialExchange(self._fio.api.exchange(ticker, self.comexCode), self._fio)

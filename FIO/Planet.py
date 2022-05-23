@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -69,3 +70,12 @@ class Planet:
 
 	def __hash__(self):
 		return hash(self.planetId)
+
+	@property
+	def timedelta(self):
+		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+
+	def formatTimedelta(self):
+		delta = self.timedelta
+		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
+		return f"{days}days {hours}h {minutes}m"

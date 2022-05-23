@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -38,6 +39,10 @@ class Storage:
 
 	def __hash__(self):
 		return hash(self.storageId)
+
+	@property
+	def timedelta(self):
+		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
 
 	def getItemAmount(self, ticker: str):
 		"""Gets an item in the storage, defaults to `0` if the storage doesn't contain that item"""
