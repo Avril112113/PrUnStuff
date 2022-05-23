@@ -116,7 +116,7 @@ class FIOApi:
 		logger.info(f"recipes(\"{ticker}\")")
 		return self.get(f"/recipes/{ticker}").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=24))
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def sites(self, username: str):
 		logger.info(f"sites(\"{username}\")")
 		return self.get(f"/sites/{username.upper()}").json()
@@ -124,7 +124,7 @@ class FIOApi:
 	def mysites(self):
 		return self.sites(self._default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=24))
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def site(self, username: str, planet: str):
 		logger.info(f"sites(\"{username}\", \"{planet}\")")
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
@@ -132,7 +132,7 @@ class FIOApi:
 	def mysite(self, planet: str):
 		return self.site(self._default_name, planet)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storages(self, username: str):
 		logger.info(f"storages(\"{username}\")")
 		return self.get(f"/storage/{username.upper()}").json()
@@ -140,7 +140,7 @@ class FIOApi:
 	def mystorages(self):
 		return self.storages(self._default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storage(self, username: str, storageDescription: str):
 		"""
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -154,7 +154,7 @@ class FIOApi:
 		"""
 		return self.storage(self._default_name, storageDescription)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
+	@jsoncache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def exchange(self, material: str, commodityExchange: str):
 		logger.info(f"exchange(\"{material}\", \"{commodityExchange}\")")
 		return self.get(f"/exchange/{material.upper()}.{commodityExchange.upper()}").json()
