@@ -3,9 +3,9 @@ import inspect
 import json
 import os
 import sys
+import traceback
 import typing
 from datetime import datetime, timedelta
-from typing import Union
 
 
 class JsonCacheEncoder(json.JSONEncoder):
@@ -77,9 +77,15 @@ class JsonCache:
 				or
 			(shouldCheckInvalidate and (datetime.now() >= argCache[self.DATETIME_KEY]+self.invalidateTime))
 		):
-			argCache[self.VALUE_KEY] = self.f(*args)
-			argCache[self.DATETIME_KEY] = datetime.now()
-			self.writeCache()  # TODO: This could be done after a minute or when the program stops
+			# noinspection PyBroadException
+			try:
+				argCache[self.VALUE_KEY] = self.f(*args)
+				argCache[self.DATETIME_KEY] = datetime.now()
+				self.writeCache()  # TODO: This could be done after a minute or when the program stops
+			except Exception:
+				traceback.print_exc()
+		if self.VALUE_KEY not in argCache:
+			raise KeyError("There was an error in caching the value and there was no already cached value to use. (See above)")
 		return argCache[self.VALUE_KEY]
 
 	def readCache(self):
