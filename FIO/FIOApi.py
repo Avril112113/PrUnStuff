@@ -1,9 +1,10 @@
+from datetime import timedelta
 from typing import Optional
 import requests
 import logging
 
 from .FIOExceptions import *
-from .jsoncache import jsoncache
+from .jsoncache import jsoncache, ParamOpts
 
 
 logger = logging.getLogger("FIOApi")
@@ -65,7 +66,7 @@ class FIOApi:
 		logger.info("allbuildings()")
 		return self.get("/building/allbuildings").json()
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def building(self, ticker: str):
 		logger.info(f"building(\"{ticker}\")")
 		return self.get(
@@ -96,7 +97,7 @@ class FIOApi:
 		logger.info("allmaterials()")
 		return self.get("/material/allmaterials").json()
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def material(self, ticker: str):
 		logger.info(f"material(\"{ticker}\")")
 		return self.get(
@@ -110,12 +111,12 @@ class FIOApi:
 		logger.info("allrecipes()")
 		return self.get("/recipes/allrecipes").json()
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def recipes(self, ticker: str):
 		logger.info(f"recipes(\"{ticker}\")")
 		return self.get(f"/recipes/{ticker}").json()
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=24))
 	def sites(self, username: str):
 		logger.info(f"sites(\"{username}\")")
 		return self.get(f"/sites/{username.upper()}").json()
@@ -123,7 +124,7 @@ class FIOApi:
 	def mysites(self):
 		return self.sites(self._default_name)
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=24))
 	def site(self, username: str, planet: str):
 		logger.info(f"sites(\"{username}\", \"{planet}\")")
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
@@ -131,7 +132,7 @@ class FIOApi:
 	def mysite(self, planet: str):
 		return self.site(self._default_name, planet)
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def storages(self, username: str):
 		logger.info(f"storages(\"{username}\")")
 		return self.get(f"/storage/{username.upper()}").json()
@@ -139,7 +140,7 @@ class FIOApi:
 	def mystorages(self):
 		return self.storages(self._default_name)
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def storage(self, username: str, storageDescription: str):
 		"""
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -153,12 +154,12 @@ class FIOApi:
 		"""
 		return self.storage(self._default_name, storageDescription)
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
 	def exchange(self, material: str, commodityExchange: str):
 		logger.info(f"exchange(\"{material}\", \"{commodityExchange}\")")
 		return self.get(f"/exchange/{material.upper()}.{commodityExchange.upper()}").json()
 
-	@jsoncache(param_upper=True)
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def exchangestation(self):
 		logger.info(f"exchangestation()")
 		return self.get(f"/exchange/station").json()

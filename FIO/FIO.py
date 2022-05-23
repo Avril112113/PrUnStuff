@@ -29,6 +29,10 @@ class FIO:
 		return Building(self.api.building(ticker.upper()), self)
 
 	@lru_cache
+	def getRecipes(self, ticker: str):
+		return [Recipe(recipe, self) for recipe in self.api.recipes(ticker)]
+
+	@lru_cache
 	def getPlanet(self, planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -49,6 +53,9 @@ class FIO:
 		"""
 		return Site(self.api.mysite(planet), self)
 
+	def clearSiteCache(self):
+		self.api.site.clearCache()  # Method from jsoncache.py
+
 	@lru_cache
 	def getStorage(self, username: str, storageDescription: str):
 		"""
@@ -63,9 +70,8 @@ class FIO:
 		"""
 		return Storage(self.api.mystorage(storageDescription), self)
 
-	@lru_cache
-	def getRecipes(self, ticker: str):
-		return [Recipe(recipe, self) for recipe in self.api.recipes(ticker)]
+	def clearStorageCache(self):
+		self.api.storage.clearCache()  # Method from jsoncache.py
 
 	@lru_cache
 	def getExchanges(self) -> dict[str, Exchange]:
@@ -74,3 +80,13 @@ class FIO:
 	@lru_cache
 	def getExchange(self, exchange: str):
 		return self.getExchanges().get(exchange, None)
+
+	def clearExchangeCache(self):
+		"""
+		You are probably looking to use `clearMaterialExchangeCache()` instead...
+		This method clears the cache for the existing stations, not the contents.
+		"""
+		self.api.exchangestation.clearCache()  # Method from jsoncache.py
+
+	def clearMaterialExchangeCache(self):
+		self.api.exchange.clearCache()  # Method from jsoncache.py
