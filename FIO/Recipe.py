@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -29,6 +30,7 @@ class Recipe:
 		self.inputs = [RecipeMaterial(recipeMaterial, fio) for recipeMaterial in json["Inputs"]]
 		self.outputs = [RecipeMaterial(recipeMaterial, fio) for recipeMaterial in json["Outputs"]]
 		self.timeMs = json.get("DurationMs", json.get("TimeMs", None))
+		self.timeDelta = timedelta(milliseconds=self.timeMs)
 		self.recipeName = json["RecipeName"]
 
 	def __repr__(self):

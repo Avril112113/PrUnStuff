@@ -2,6 +2,8 @@ from datetime import datetime
 from functools import total_ordering
 from typing import TYPE_CHECKING
 
+from ..utils import formatTimedelta
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
@@ -86,9 +88,7 @@ class MaterialExchange:
 		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
 
 	def formatTimedelta(self):
-		delta = self.timedelta
-		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
-		return f"{days}days {hours}h {minutes}m"
+		return formatTimedelta(self.timedelta)
 
 
 class Exchange:

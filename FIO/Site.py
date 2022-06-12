@@ -39,3 +39,6 @@ class Site:
 
 	def __hash__(self):
 		return hash(self.siteId)
+
+	def buildingsOfType(self, buildingTicker: str):
+		return list(building for building in self.buildings if building.building.ticker == buildingTicker)

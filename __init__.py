@@ -1,5 +1,5 @@
 import math
-import sys
+from datetime import timedelta
 
 from PrUnStuff.FIO import *
 
@@ -26,33 +26,49 @@ class PrUnStuff:
 
 	def sim_produceRecipe(
 			self,
-			recipe: Recipe, resourcesAvailable: dict, produceAll=False, maxRecipeUse=sys.maxsize,
-			requirementsRecipes: dict[str, Recipe] = {}, recipesUsed={}
+			building: Building, recipe: Recipe, resourcesAvailable: dict, produceAll=False, buildingUseLimits: dict[str, int] = None,
+			requirementsRecipes: dict[str, tuple[Building, Recipe]] = None, recipesUsed: dict[Recipe, int] = None, buildingsUsed: dict[Building, int] = None
 	):
+		if buildingUseLimits is None:
+			buildingUseLimits = {}
+		if requirementsRecipes is None:
+			requirementsRecipes = {}
+		if recipesUsed is None:
+			recipesUsed = {}
+		if buildingsUsed is None:
+			buildingsUsed = {}
 		producedAnything = False
 		while True:
 			hasRequirements = True
 			for inputMaterial in recipe.inputs:
 				missing = inputMaterial.amount - resourcesAvailable[inputMaterial.ticker]
 				if missing > 0:
-					requirementRecipe = requirementsRecipes.get(inputMaterial.ticker, None)
-					if requirementRecipe is None:
+					if inputMaterial.ticker not in requirementsRecipes:
 						hasRequirements = False
 						break
+					requirementBuilding, requirementRecipe = requirementsRecipes[inputMaterial.ticker]
 					requirementProduceCount = math.ceil(missing / requirementRecipe.getOutputMaterial(inputMaterial.ticker).amount)
 					if not all([
-						self.sim_produceRecipe(requirementRecipe, resourcesAvailable, produceAll=False, requirementsRecipes=requirementsRecipes, recipesUsed=recipesUsed)
+						self.sim_produceRecipe(
+							requirementBuilding, requirementRecipe, resourcesAvailable, produceAll=False, buildingUseLimits=buildingUseLimits,
+							requirementsRecipes=requirementsRecipes, recipesUsed=recipesUsed, buildingsUsed=buildingsUsed
+						)
 						for i in range(requirementProduceCount)
 					]):
 						hasRequirements = False
 						break
 			if not hasRequirements:
 				break
+			if building not in buildingsUsed:
+				buildingsUsed[building] = 1
+			else:
+				maxUse = buildingUseLimits.get(building.ticker, None)
+				if maxUse is not None and buildingsUsed[building] >= maxUse:
+					break
+				buildingsUsed[building] += 1
 			if recipe not in recipesUsed:
 				recipesUsed[recipe] = 1
 			else:
-				if recipesUsed[recipe] + 1 >= maxRecipeUse:
-					break
 				recipesUsed[recipe] += 1
 			for recipeMaterial in recipe.inputs:
 				resourcesAvailable[recipeMaterial.material.ticker] -= recipeMaterial.amount
@@ -65,12 +81,19 @@ class PrUnStuff:
 				break
 		return producedAnything
 
-	def producibleWithStorageContents(self, planet: str, materialTicker: str, recipes: dict[str, list[str]], maxRecipeUse=sys.maxsize):
+	def getBuildingUseLimitsForRecipesAtSite(self, planet: str, recipes: dict[str, list[str]]):
+		buildingUseLimits = {}
+		site = self.fio.getMySite(planet)
+		for buildingTicker in recipes.keys():
+			buildingUseLimits[buildingTicker] = len(site.buildingsOfType(buildingTicker)) * 20
+		return buildingUseLimits
+
+	def producibleWithStorageContents(self, planet: str, materialTicker: str, recipes: dict[str, list[str]], buildingUseLimits: dict[str, int] = None):
 		"""
 		:param planet:
 		:param materialTicker: Target material
 		:param recipes: {"INC": ["4xHCP 2xGRN 2xMAI = 4xC"], "FRM": ["2xH2O = 4xHCP", "1xH2O = 4xGRN", "4xH2O = 12xMAI"]}
-		:param maxRecipeUse: The max amount any recipe can be used, useful for limiting due to order size maxed at 20
+		:param buildingUseLimits: A dict with keys being a building ticker and values of the max amount of times that recipes can be used in that building
 		"""
 		material = self.fio.getMaterial(materialTicker)
 		recipesForTarget = []
@@ -85,9 +108,9 @@ class PrUnStuff:
 					recipesForTarget.append((building, recipe))
 				for outputMaterial in recipe.outputs:
 					if outputMaterial.material.ticker in requirementsRecipes:
-						print(f"WARNING: Found duplicate recipe for resource `{outputMaterial.material.ticker}`, using first one that was found. Please avoid duplicate recipes!")
+						print(f"WARNING: Found duplicate recipe for resource `{outputMaterial.material.ticker}`, using first one that was found ({requirementsRecipes[outputMaterial.material.ticker]}). Please avoid duplicate recipes!")
 					else:
-						requirementsRecipes[outputMaterial.material.ticker] = recipe
+						requirementsRecipes[outputMaterial.material.ticker] = (building, recipe)
 		if len(recipesForTarget) > 1:
 			raise Exception("Found multiple recipes for target material, please ensure there is only one recipe for the target material.")
 		elif len(recipesForTarget) <= 0:
@@ -95,9 +118,13 @@ class PrUnStuff:
 		building, materialRecipe = recipesForTarget[0]
 		resources = self.getAvailableResourcesForRecipe(planet, building.ticker, materialRecipe.recipeName)
 		resources[material.ticker] = 0
-		recipesUsed = {}
-		self.sim_produceRecipe(materialRecipe, resources, produceAll=True, requirementsRecipes=requirementsRecipes, maxRecipeUse=maxRecipeUse, recipesUsed=recipesUsed)
-		return resources, recipesUsed
+		recipesUsed: dict[Recipe, int] = {}
+		buildingsUsed: dict[Building, int] = {}
+		self.sim_produceRecipe(
+			building, materialRecipe, resources, produceAll=True, buildingUseLimits=buildingUseLimits,
+			requirementsRecipes=requirementsRecipes, recipesUsed=recipesUsed, buildingsUsed=buildingsUsed
+		)
+		return resources, recipesUsed, buildingsUsed
 
 	def getConsumedProducedFromRecipesUsed(self, recipesUsed: dict[Recipe, int]):
 		consumed = {}
@@ -114,3 +141,25 @@ class PrUnStuff:
 				else:
 					produced[outputMaterial.ticker] += outputMaterial.amount * count
 		return consumed, produced
+
+	def getProductionTime(self, planet: str, recipes: dict[str, list[str]], recipesUsed: dict[Recipe, int]):
+		prodTime = timedelta()
+		site = self.fio.getMySite(planet)
+		for buildingTicker, buildingRecipes in recipes.items():
+			building = self.fio.getBuilding(buildingTicker)
+			for buildingRecipe in buildingRecipes:
+				recipe = building.recipes[buildingRecipe]
+				if recipe in recipesUsed:
+					count = recipesUsed[recipe]
+					buildingCount = len(site.buildingsOfType(buildingTicker))
+					prodTime += recipe.timeDelta * count / buildingCount
+		return prodTime
+
+	def getBuildingUsage(self, buildingUseLimits: dict[str, int], buildingsUsed: dict[Building, int]):
+		globalBuildingUsage = dict({building: amount / buildingUseLimits[building.ticker] for building, amount in buildingsUsed.items()})
+		usageSum = sum(globalBuildingUsage.values())
+		if usageSum == 0:
+			return dict({k: 0 for k, v in globalBuildingUsage.items()})
+		factor = max(globalBuildingUsage.values())
+		return dict({k: v / factor for k, v in globalBuildingUsage.items()})
+
