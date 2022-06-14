@@ -88,6 +88,17 @@ class JsonCache:
 			raise KeyError("There was an error in caching the value and there was no already cached value to use. (See above)")
 		return argCache[self.VALUE_KEY]
 
+	def cacheValue(self, value, *args, write=True):
+		argCache = self.cache
+		for arg in args:
+			if arg not in argCache:
+				argCache[arg] = {}
+			argCache = argCache[arg]
+		argCache[self.VALUE_KEY] = value
+		argCache[self.DATETIME_KEY] = datetime.now()
+		if write:
+			self.writeCache()  # TODO: This could be done after a minute or when the program stops
+
 	def readCache(self):
 		try:
 			self.cache = json.load(open(self.cache_file_path, "r"), object_hook=jsonCacheHook)
@@ -108,6 +119,9 @@ class JsonCache:
 
 	def addMethods(self, wrapper: callable):
 		"""This is used for a very hacky solution..."""
+		setattr(wrapper, "cacheValue", self.cacheValue)
+		setattr(wrapper, "readCache", self.readCache)
+		setattr(wrapper, "writeCache", self.writeCache)
 		setattr(wrapper, "clearCache", self.clearCache)
 
 

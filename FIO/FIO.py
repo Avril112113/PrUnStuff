@@ -16,7 +16,6 @@ class FIO:
 	Interface for PrUn data, provided by FIO rest API
 	Uses `FIOApi` class, but provides a more convenient interface
 	"""
-	# A developer note: This interface HEAVILY relies on the `FIOApi` caching of it's api calls
 
 	def __init__(self, key: str):
 		self.api = FIOApi(key)
@@ -30,8 +29,8 @@ class FIO:
 		return Building(self.api.building(ticker.upper()), self)
 
 	@lru_cache
-	def getRecipes(self, ticker: str):
-		return [Recipe(recipe, self) for recipe in self.api.recipes(ticker)]
+	def getRecipe(self, ticker: str):
+		return Recipe(self.api.recipes(ticker), self)
 
 	@lru_cache
 	def getPlanet(self, planet: str):

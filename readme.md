@@ -53,7 +53,7 @@ from PrUnStuff import PrUnStuff
 from PrUnStuff.FIO import *
 
 
-def printProduction(prUnStuff: PrUnStuff, planet: Planet, material: Material, recipes: list[BuildingRecipe], buildingUseLimits: Union[None, bool, dict[Building, int]] = True):
+def printProduction(prUnStuff: PrUnStuff, planet: Planet, material: Material, recipes: list[Recipe], buildingUseLimits: Union[None, bool, dict[Building, int]] = True):
 	siteBuildingUseLimits = prUnStuff.getBuildingUseLimitsForRecipesAtSite(planet, recipes)
 	if buildingUseLimits is True:
 		buildingUseLimits = siteBuildingUseLimits
@@ -97,6 +97,5 @@ involvedRecipes = [
 	frm.recipes["1xH2O = 4xGRN"],
 	frm.recipes["4xH2O = 12xMAI"],
 ]
-siteBuildingUseLimits = prUnStuff.getBuildingUseLimitsForRecipesAtSite(planet, involvedRecipes)
-printProduction(prUnStuff, planet, finalMaterial, involvedRecipes, buildingUseLimits=siteBuildingUseLimits)
+printProduction(prUnStuff, planet, finalMaterial, involvedRecipes)
 ```

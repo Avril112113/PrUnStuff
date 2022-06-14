@@ -1,10 +1,11 @@
 from datetime import timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .Material import Material
 
 if TYPE_CHECKING:
 	from .FIO import FIO
+	from .Building import Building
 
 
 class RecipeMaterial:
@@ -28,7 +29,7 @@ class RecipeMaterial:
 
 
 class Recipe:
-	def __init__(self, json: dict, fio: "FIO"):
+	def __init__(self, json: dict, fio: "FIO", building: "Building" = None):
 		self.inputs = {}
 		for recipeInputJson in json["Inputs"]:
 			recipeInput = RecipeMaterial(recipeInputJson, fio)
@@ -40,6 +41,12 @@ class Recipe:
 		self.timeMs = json.get("DurationMs", json.get("TimeMs", None))
 		self.timeDelta = timedelta(milliseconds=self.timeMs)
 		self.recipeName = json["RecipeName"]
+		if building is not None:
+			self.buildingTicker = building.ticker
+			self.building = building
+		else:
+			self.buildingTicker = json["BuildingTicker"]
+			self.building: Optional["Building"] = fio.getBuilding(self.buildingTicker)
 
 	def __repr__(self):
 		return f"<Recipe `{self.recipeName}`>"

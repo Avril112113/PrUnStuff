@@ -64,7 +64,11 @@ class FIOApi:
 	@jsoncache()
 	def allbuildings(self):
 		logger.info("allbuildings()")
-		return self.get("/building/allbuildings").json()
+		data = self.get("/building/allbuildings").json()
+		for buildingJson in data:
+			self.building.cacheValue(buildingJson, buildingJson["Ticker"], write=False)
+		self.building.writeCache()
+		return data
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def building(self, ticker: str):
@@ -78,7 +82,13 @@ class FIOApi:
 	@jsoncache()
 	def allplanets(self):
 		logger.info("allplanets()")
-		return self.get("/planet/allplanets/full").json()
+		data = self.get("/planet/allplanets/full").json()
+		for planetJson in data:
+			self.planet.cacheValue(planetJson, planetJson["PlanetId"], write=False)
+			self.planet.cacheValue(planetJson, planetJson["PlanetNaturalId"], write=False)
+			self.planet.cacheValue(planetJson, planetJson["PlanetName"], write=False)
+		self.planet.writeCache()
+		return data
 
 	@jsoncache()
 	def planet(self, planet: str):
@@ -95,7 +105,11 @@ class FIOApi:
 	@jsoncache()
 	def allmaterials(self):
 		logger.info("allmaterials()")
-		return self.get("/material/allmaterials").json()
+		data = self.get("/material/allmaterials").json()
+		for materialJson in data:
+			self.material.cacheValue(materialJson, materialJson["Ticker"], write=False)
+		self.material.writeCache()
+		return data
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def material(self, ticker: str):
@@ -109,9 +123,13 @@ class FIOApi:
 	@jsoncache()
 	def allrecipes(self):
 		logger.info("allrecipes()")
-		return self.get("/recipes/allrecipes").json()
+		data = self.get("/recipes/allrecipes").json()
+		for recipeJson in data:
+			self.recipes.cacheValue(recipeJson, recipeJson["RecipeName"], write=False)
+		self.recipes.writeCache()
+		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache()
 	def recipes(self, ticker: str):
 		logger.info(f"recipes(\"{ticker}\")")
 		return self.get(f"/recipes/{ticker}").json()

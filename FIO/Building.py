@@ -4,18 +4,10 @@ from typing import TYPE_CHECKING
 from dateutil.parser import isoparse
 
 from .Material import Material
+from .Recipe import Recipe
 
 if TYPE_CHECKING:
 	from .FIO import FIO
-
-
-from .Recipe import Recipe
-
-
-class BuildingRecipe(Recipe):
-	def __init__(self, json: dict, fio: "FIO", building: "Building"):
-		super().__init__(json, fio)
-		self.building = building
 
 
 class Building:
@@ -26,9 +18,6 @@ class Building:
 			amount = itemJson["Amount"]
 			self.buildingCosts[fio.getMaterial(ticker)] = amount
 		self.recipes: dict[str, Recipe] = {}
-		for recipeJson in json["Recipes"]:
-			if len(recipeJson["Outputs"]) > 0:
-				self.recipes[recipeJson["RecipeName"]] = BuildingRecipe(recipeJson, fio, self)
 
 		self.name = json["Name"]
 		self.ticker = json["Ticker"]
@@ -41,6 +30,10 @@ class Building:
 		self.areaCost = json["AreaCost"]
 		self.userNameSubmitted = json["UserNameSubmitted"]
 		self.timestamp = json["Timestamp"]
+
+		for recipeJson in json["Recipes"]:
+			if len(recipeJson["Outputs"]) > 0:
+				self.recipes[recipeJson["RecipeName"]] = Recipe(recipeJson, fio, building=self)
 		
 	def __repr__(self):
 		return f"<Building `{self.ticker}`>"

@@ -17,15 +17,15 @@ class PrUnStuff:
 		for requirement in recipe.inputs.values():
 			resourcesAvailable[requirement.material] = storage.getItemAmount(requirement.material)
 			for siteBuilding in site.buildings:
-				for buildingRecipe in siteBuilding.building.recipes.values():
-					if buildingRecipe.isMaterialOutput(requirement.material):
-						self.getAvailableResourcesForRecipe(planet, buildingRecipe, resourcesAvailable)
+				for recipe in siteBuilding.building.recipes.values():
+					if recipe.isMaterialOutput(requirement.material):
+						self.getAvailableResourcesForRecipe(planet, recipe, resourcesAvailable)
 		return resourcesAvailable
 
 	def sim_produceRecipe(
 			self,
-			buildingRecipe: BuildingRecipe, resourcesAvailable: dict[Material, int], produceAll=False, buildingUseLimits: dict[Building, int] = None,
-			requirementsRecipes: dict[Material, BuildingRecipe] = None, recipesUsed: dict[Recipe, int] = None, buildingsUsed: dict[Building, int] = None
+			recipe: Recipe, resourcesAvailable: dict[Material, int], produceAll=False, buildingUseLimits: dict[Building, int] = None,
+			requirementsRecipes: dict[Material, Recipe] = None, recipesUsed: dict[Recipe, int] = None, buildingsUsed: dict[Building, int] = None
 	):
 		if buildingUseLimits is None:
 			buildingUseLimits = {}
@@ -38,17 +38,17 @@ class PrUnStuff:
 		producedAnything = False
 		while True:
 			hasRequirements = True
-			for inputMaterial in buildingRecipe.inputs.values():
+			for inputMaterial in recipe.inputs.values():
 				missing = inputMaterial.amount - resourcesAvailable[inputMaterial.material]
 				if missing > 0:
 					if inputMaterial.material not in requirementsRecipes:
 						hasRequirements = False
 						break
-					requirementBuildingRecipe = requirementsRecipes[inputMaterial.material]
-					requirementProduceCount = math.ceil(missing / requirementBuildingRecipe.outputs[inputMaterial.material].amount)
+					requirementRecipe = requirementsRecipes[inputMaterial.material]
+					requirementProduceCount = math.ceil(missing / requirementRecipe.outputs[inputMaterial.material].amount)
 					if not all([
 						self.sim_produceRecipe(
-							requirementBuildingRecipe, resourcesAvailable, produceAll=False, buildingUseLimits=buildingUseLimits,
+							requirementRecipe, resourcesAvailable, produceAll=False, buildingUseLimits=buildingUseLimits,
 							requirementsRecipes=requirementsRecipes, recipesUsed=recipesUsed, buildingsUsed=buildingsUsed
 						)
 						for i in range(requirementProduceCount)
@@ -57,20 +57,20 @@ class PrUnStuff:
 						break
 			if not hasRequirements:
 				break
-			if buildingRecipe.building not in buildingsUsed:
-				buildingsUsed[buildingRecipe.building] = 1
+			if recipe.building not in buildingsUsed:
+				buildingsUsed[recipe.building] = 1
 			else:
-				maxUse = buildingUseLimits.get(buildingRecipe.building, None)
-				if maxUse is not None and buildingsUsed[buildingRecipe.building] >= maxUse:
+				maxUse = buildingUseLimits.get(recipe.building, None)
+				if maxUse is not None and buildingsUsed[recipe.building] >= maxUse:
 					break
-				buildingsUsed[buildingRecipe.building] += 1
-			if buildingRecipe not in recipesUsed:
-				recipesUsed[buildingRecipe] = 1
+				buildingsUsed[recipe.building] += 1
+			if recipe not in recipesUsed:
+				recipesUsed[recipe] = 1
 			else:
-				recipesUsed[buildingRecipe] += 1
-			for recipeMaterial in buildingRecipe.inputs.values():
+				recipesUsed[recipe] += 1
+			for recipeMaterial in recipe.inputs.values():
 				resourcesAvailable[recipeMaterial.material] -= recipeMaterial.amount
-			for recipeMaterial in buildingRecipe.outputs.values():
+			for recipeMaterial in recipe.outputs.values():
 				if recipeMaterial.material not in resourcesAvailable:
 					resourcesAvailable[recipeMaterial.material] = 0
 				resourcesAvailable[recipeMaterial.material] += recipeMaterial.amount
@@ -79,14 +79,14 @@ class PrUnStuff:
 				break
 		return producedAnything
 
-	def getBuildingUseLimitsForRecipesAtSite(self, planet: Planet, recipes: list[BuildingRecipe]):
+	def getBuildingUseLimitsForRecipesAtSite(self, planet: Planet, recipes: list[Recipe]):
 		buildingUseLimits = {}
 		site = self.fio.getMySite(planet.planetId)
-		for buildingRecipe in recipes:
-			buildingUseLimits[buildingRecipe.building] = len(site.buildingsOfType(buildingRecipe.building)) * 20
+		for recipe in recipes:
+			buildingUseLimits[recipe.building] = len(site.buildingsOfType(recipe.building)) * 20
 		return buildingUseLimits
 
-	def producibleWithStorageContents(self, planet: Planet, material: Material, recipes: list[BuildingRecipe], buildingUseLimits: dict[Building, int] = None):
+	def producibleWithStorageContents(self, planet: Planet, material: Material, recipes: list[Recipe], buildingUseLimits: dict[Building, int] = None):
 		"""
 		:param planet:
 		:param material: Target material
@@ -95,26 +95,26 @@ class PrUnStuff:
 		"""
 		recipesForTarget = []
 		requirementsRecipes = {}
-		for buildingRecipe in recipes:
-			building = buildingRecipe.building
-			if buildingRecipe.isMaterialOutput(material):
-				recipesForTarget.append(buildingRecipe)
-			for outputMaterial in buildingRecipe.outputs.values():
+		for recipe in recipes:
+			building = recipe.building
+			if recipe.isMaterialOutput(material):
+				recipesForTarget.append(recipe)
+			for outputMaterial in recipe.outputs.values():
 				if outputMaterial.material in requirementsRecipes:
 					print(f"WARNING: Found duplicate recipe for resource `{outputMaterial.material.ticker}`, using first one that was found ({requirementsRecipes[outputMaterial.material.ticker]}). Please avoid duplicate recipes!")
 				else:
-					requirementsRecipes[outputMaterial.material] = buildingRecipe
+					requirementsRecipes[outputMaterial.material] = recipe
 		if len(recipesForTarget) > 1:
 			raise Exception("Found multiple recipes for target material, please ensure there is only one recipe for the target material.")
 		elif len(recipesForTarget) <= 0:
 			raise Exception("Found no recipes for target resource.")
-		buildingRecipe = recipesForTarget[0]
-		resources = self.getAvailableResourcesForRecipe(planet, buildingRecipe)
+		recipe = recipesForTarget[0]
+		resources = self.getAvailableResourcesForRecipe(planet, recipe)
 		resources[material] = 0
 		recipesUsed: dict[Recipe, int] = {}
 		buildingsUsed: dict[Building, int] = {}
 		self.sim_produceRecipe(
-			buildingRecipe, resources, produceAll=True, buildingUseLimits=buildingUseLimits,
+			recipe, resources, produceAll=True, buildingUseLimits=buildingUseLimits,
 			requirementsRecipes=requirementsRecipes, recipesUsed=recipesUsed, buildingsUsed=buildingsUsed
 		)
 		return resources, recipesUsed, buildingsUsed
@@ -135,14 +135,14 @@ class PrUnStuff:
 					produced[outputMaterial] += outputMaterial.amount * count
 		return consumed, produced
 
-	def getProductionTime(self, planet: Planet, recipes: list[BuildingRecipe], recipesUsed: dict[Recipe, int]):
+	def getProductionTime(self, planet: Planet, recipes: list[Recipe], recipesUsed: dict[Recipe, int]):
 		prodTime = timedelta()
 		site = self.fio.getMySite(planet.planetId)
-		for buildingRecipe in recipes:
-			if buildingRecipe in recipesUsed:
-				count = recipesUsed[buildingRecipe]
-				buildingCount = len(site.buildingsOfType(buildingRecipe.building))
-				prodTime += buildingRecipe.timeDelta * count / buildingCount
+		for recipe in recipes:
+			if recipe in recipesUsed:
+				count = recipesUsed[recipe]
+				buildingCount = len(site.buildingsOfType(recipe.building))
+				prodTime += recipe.timeDelta * count / buildingCount
 		return prodTime
 
 	def getBuildingUsage(self, buildingUseLimits: dict[Building, int], buildingsUsed: dict[Building, int]):
