@@ -1,8 +1,10 @@
 from datetime import datetime
+from dateutil.parser import isoparse
 from functools import total_ordering
 from typing import TYPE_CHECKING
 
 from ..utils import formatTimedelta
+from .Material import Material
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -23,7 +25,7 @@ class MaterialExchangeOrder:
 		return f"<MaterialExchangeOrder `{self.itemCount}x{self.materialExchange.material.ticker}` {self.itemCost:.2f} {self.materialExchange.currency} @ `{self.materialExchange.exchangeCode}`>"
 
 	def __hash__(self):
-		return hash(self.orderId)
+		return hash((self.__class__, self.orderId))
 
 	def __lt__(self, other: "MaterialExchangeOrder"):
 		return self.itemCost < other.itemCost
@@ -81,11 +83,11 @@ class MaterialExchange:
 		return f"<MaterialExchange `{self.material.ticker}` @ `{self.exchangeCode}`>"
 
 	def __hash__(self):
-		return hash(self.cxDataModelId)
+		return hash((self.__class__, self.cxDataModelId))
 
 	@property
 	def timedelta(self):
-		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+		return datetime.utcnow() - isoparse(self.timestamp)
 
 	def formatTimedelta(self):
 		return formatTimedelta(self.timedelta)
@@ -122,16 +124,16 @@ class Exchange:
 		return f"<Exchange `{self.comexCode}`>"
 
 	def __hash__(self):
-		return hash(self.comexId)
+		return hash((self.__class__, self.comexId))
 
 	@property
 	def timedelta(self):
-		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+		return datetime.utcnow() - isoparse(self.timestamp)
 
 	def formatTimedelta(self):
 		delta = self.timedelta
 		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
 		return f"{days}days {hours}h {minutes}m"
 
-	def getMaterialExchange(self, ticker: str):
-		return MaterialExchange(self._fio.api.exchange(ticker, self.comexCode), self._fio)
+	def getMaterialExchange(self, material: Material):
+		return MaterialExchange(self._fio.api.exchange(material.ticker, self.comexCode), self._fio)

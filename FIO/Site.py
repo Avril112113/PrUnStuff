@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
 
+from .Building import Building
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
@@ -18,7 +20,7 @@ class SiteBuilding:
 		return f"<SiteBuilding `{self.buildingId}`>"
 
 	def __hash__(self):
-		return hash(self.buildingId)
+		return hash((self.__class__, self.buildingId))
 
 
 class Site:
@@ -38,7 +40,7 @@ class Site:
 		return f"<Site `{self.siteId}`>"
 
 	def __hash__(self):
-		return hash(self.siteId)
+		return hash((self.__class__, self.siteId))
 
-	def buildingsOfType(self, buildingTicker: str):
-		return list(building for building in self.buildings if building.building.ticker == buildingTicker)
+	def buildingsOfType(self, building: Building):
+		return list(siteBuilding for siteBuilding in self.buildings if siteBuilding.building == building)

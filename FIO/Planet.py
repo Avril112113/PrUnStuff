@@ -1,12 +1,16 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from dateutil.parser import isoparse
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
 
 class Planet:
 	def __init__(self, json: dict, fio: "FIO"):
+		self.fio = fio
+
 		# TODO: The list fields below
 		# self.resources = json["Resources"]
 		# self.buildRequirements = json["BuildRequirements"]
@@ -69,13 +73,34 @@ class Planet:
 		return f"<Planet `{self.planetNaturalId}`>"
 
 	def __hash__(self):
-		return hash(self.planetId)
+		return hash((self.__class__, self.planetId))
 
 	@property
 	def timedelta(self):
-		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+		return datetime.utcnow() - isoparse(self.timestamp)
 
 	def formatTimedelta(self):
 		delta = self.timedelta
 		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
 		return f"{days}days {hours}h {minutes}m"
+
+	def getAdditionalBuildMaterials(self, area: int):
+		additionalMaterials = {}
+		# https://handbook.apex.prosperousuniverse.com/wiki/building-costs/#costs-calculation
+		if self.surface:
+			additionalMaterials[self.fio.getMaterial("MCG")] = area * 4
+		else:
+			additionalMaterials[self.fio.getMaterial("AEF")] = area / 3
+		if self.pressure < 0.25:
+			additionalMaterials[self.fio.getMaterial("SEA")] = area * 1
+		elif self.pressure > 2:
+			additionalMaterials[self.fio.getMaterial("HSE")] = 1
+		if self.gravity < 0.25:
+			additionalMaterials[self.fio.getMaterial("MGC")] = 1
+		elif self.gravity > 2.5:
+			additionalMaterials[self.fio.getMaterial("BL")] = 1
+		if self.temperature < -25:
+			additionalMaterials[self.fio.getMaterial("INS")] = area * 10
+		elif self.gravity > 75:
+			additionalMaterials[self.fio.getMaterial("TSH")] = 1
+		return additionalMaterials

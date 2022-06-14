@@ -1,6 +1,8 @@
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
+from .Material import Material
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
@@ -18,7 +20,7 @@ class RecipeMaterial:
 		return f"<RecipeMaterial `{self.amount}x{self.materialTicker}`>"
 
 	def __hash__(self):
-		return hash(({self.amount}, {self.materialTicker}))
+		return hash((self.__class__, self.amount, self.materialTicker))
 
 	@property
 	def ticker(self):
@@ -27,8 +29,14 @@ class RecipeMaterial:
 
 class Recipe:
 	def __init__(self, json: dict, fio: "FIO"):
-		self.inputs = [RecipeMaterial(recipeMaterial, fio) for recipeMaterial in json["Inputs"]]
-		self.outputs = [RecipeMaterial(recipeMaterial, fio) for recipeMaterial in json["Outputs"]]
+		self.inputs = {}
+		for recipeInputJson in json["Inputs"]:
+			recipeInput = RecipeMaterial(recipeInputJson, fio)
+			self.inputs[recipeInput.material] = recipeInput
+		self.outputs = {}
+		for recipeOutputJson in json["Outputs"]:
+			recipeOutput = RecipeMaterial(recipeOutputJson, fio)
+			self.outputs[recipeOutput.material] = recipeOutput
 		self.timeMs = json.get("DurationMs", json.get("TimeMs", None))
 		self.timeDelta = timedelta(milliseconds=self.timeMs)
 		self.recipeName = json["RecipeName"]
@@ -37,16 +45,10 @@ class Recipe:
 		return f"<Recipe `{self.recipeName}`>"
 
 	def __hash__(self):
-		return hash(self.recipeName)
+		return hash((self.__class__, self.recipeName))
 
-	def isMaterialInput(self, ticker: str):
-		return any(ticker == material.material.ticker for material in self.inputs)
+	def isMaterialInput(self, material: Material):
+		return any(material == recipeInput.material for recipeInput in self.inputs.values())
 
-	def isMaterialOutput(self, ticker: str):
-		return any(ticker == material.material.ticker for material in self.outputs)
-
-	def getInputMaterial(self, ticker: str):
-		return next((material for material in self.inputs if ticker == material.material.ticker), None)
-
-	def getOutputMaterial(self, ticker: str):
-		return next((material for material in self.outputs if ticker == material.material.ticker), None)
+	def isMaterialOutput(self, material: Material):
+		return any(material == recipeOutput.material for recipeOutput in self.outputs.values())

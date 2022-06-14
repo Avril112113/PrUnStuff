@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from dateutil.parser import isoparse
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
@@ -18,14 +20,14 @@ class Material:
 		self.timestamp: str = json["Timestamp"]
 
 	def __repr__(self):
-		return f"<Item `{self.ticker}`>"
+		return f"<Material `{self.ticker}`>"
 
 	def __hash__(self):
-		return hash(self.ticker)
+		return hash((self.__class__, self.ticker))
 
 	@property
 	def timedelta(self):
-		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+		return datetime.utcnow() - isoparse(self.timestamp)
 
 	def formatTimedelta(self):
 		delta = self.timedelta

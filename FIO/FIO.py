@@ -1,5 +1,6 @@
-from functools import cache, lru_cache
 # for some reason `@cache` was nuking typing info :/
+from functools import cache, lru_cache
+
 from .FIOApi import FIOApi
 from .Material import Material
 from .Building import Building

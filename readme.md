@@ -50,48 +50,53 @@ For example, PrUnStuff class has `producibleWithStorageContents()` which gets th
 ```py
 from typing import Union
 from PrUnStuff import PrUnStuff
-from PrUnStuff.utils import formatTimedelta
+from PrUnStuff.FIO import *
 
 
-def printProduction(prUnStuff: PrUnStuff, planet: str, materialTicker: str, recipes: dict[str, list[str]], buildingUseLimits: Union[None, bool, dict[str, int]] = True):
+def printProduction(prUnStuff: PrUnStuff, planet: Planet, material: Material, recipes: list[BuildingRecipe], buildingUseLimits: Union[None, bool, dict[Building, int]] = True):
 	siteBuildingUseLimits = prUnStuff.getBuildingUseLimitsForRecipesAtSite(planet, recipes)
 	if buildingUseLimits is True:
 		buildingUseLimits = siteBuildingUseLimits
 	resources, recipesUsed, buildingsUsed = prUnStuff.producibleWithStorageContents(
-		planet, materialTicker,
+		planet, material,
 		buildingUseLimits=buildingUseLimits,
 		recipes=recipes
 	)
 	consumed, produced = prUnStuff.getConsumedProducedFromRecipesUsed(recipesUsed)
-	prodTime = prUnStuff.getProductionTime(planet, recipes, recipesUsed)
+	# TODO: Fix this
+	# prodTime = prUnStuff.getProductionTime(planet, recipes, recipesUsed)
 
 	print("-- Buildings utilisation --")
 	buildingUsage = prUnStuff.getBuildingUsage(siteBuildingUseLimits, buildingsUsed)
 	for building, amount in buildingsUsed.items():
 		print(f"{building.ticker} {buildingUsage[building]*100:.1f}%")
 	print("-- Final resources --")
-	for name, amount in resources.items():
-		print(f"{name} x{amount}")
+	for material, amount in resources.items():
+		print(f"{material.ticker} x{amount:,}")
 	print("-- Consumed resources --")
-	for ticker, count in consumed.items():
-		print(f"{ticker} x{count}")
+	for material, count in consumed.items():
+		print(f"{material.ticker} x{count:,}")
 	print("-- Recipes used --")
 	for recipe, used in recipesUsed.items():
 		print(f"{recipe.recipeName}\tused {used} times")
 	print("-- Produced resources --")
-	for ticker, count in produced.items():
-		print(f"{ticker} x{count}")
-	print("-- Time to produce --")
-	print(formatTimedelta(prodTime))
+	for material, count in produced.items():
+		print(f"{material.ticker} x{count:,}")
+
 
 prUnStuff = PrUnStuff("YOUR_FIO_API_KEY")
-planet = "VH-331a"
-finalMaterial = "C"
-involvedRecipes = {
-    "INC": ["4xHCP 2xGRN 2xMAI = 4xC"],
-    "FRM": ["2xH2O = 4xHCP", "1xH2O = 4xGRN", "4xH2O = 12xMAI"]
-}
+fio = prUnStuff.fio
+planet = fio.getPlanet("VH-331a")
+
+finalMaterial = fio.getMaterial("C")
+frm = fio.getBuilding("FRM")
+inc = fio.getBuilding("INC")
+involvedRecipes = [
+	inc.recipes["4xHCP 2xGRN 2xMAI = 4xC"],
+	frm.recipes["2xH2O = 4xHCP"],
+	frm.recipes["1xH2O = 4xGRN"],
+	frm.recipes["4xH2O = 12xMAI"],
+]
 siteBuildingUseLimits = prUnStuff.getBuildingUseLimitsForRecipesAtSite(planet, involvedRecipes)
-buildingUseLimits = {"INC": siteBuildingUseLimits["INC"]}
-printProduction(prUnStuff, planet, finalMaterial, involvedRecipes, buildingUseLimits=buildingUseLimits)
+printProduction(prUnStuff, planet, finalMaterial, involvedRecipes, buildingUseLimits=siteBuildingUseLimits)
 ```

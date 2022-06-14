@@ -1,6 +1,10 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from dateutil.parser import isoparse
+
+from .Material import Material
+
 if TYPE_CHECKING:
 	from .FIO import FIO
 
@@ -21,7 +25,7 @@ class Storage:
 	def __init__(self, json: dict, fio: "FIO"):
 		self.storageItems = {}
 		for item in json["StorageItems"]:
-			self.storageItems[item["MaterialTicker"]] = StorageItem(item, fio)
+			self.storageItems[fio.getMaterial(item["MaterialTicker"])] = StorageItem(item, fio)
 		self.storageId = json["StorageId"]
 		self.addressableId = json["AddressableId"]
 		self.name = json["Name"]
@@ -38,15 +42,15 @@ class Storage:
 		return f"<Storage `{self.storageId}`>"
 
 	def __hash__(self):
-		return hash(self.storageId)
+		return hash((self.__class__, self.storageId))
 
 	@property
 	def timedelta(self):
-		return datetime.utcnow() - datetime.fromisoformat(self.timestamp)
+		return datetime.utcnow() - isoparse(self.timestamp)
 
-	def getItemAmount(self, ticker: str):
+	def getItemAmount(self, material: Material):
 		"""Gets an item in the storage, defaults to `0` if the storage doesn't contain that item"""
-		item = self.storageItems.get(ticker, None)
+		item = self.storageItems.get(material, None)
 		if item is None:
 			return 0
 		return item.materialAmount
