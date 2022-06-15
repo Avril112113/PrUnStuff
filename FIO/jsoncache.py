@@ -104,9 +104,11 @@ class JsonCache:
 		return value
 
 	def cacheValue(self, value, *args):
-		dbCache, created = self.model.get_or_create(**{self.keys[i]: args[i] for i in range(len(args))})
-		dbCache._json = json.dumps(value)
-		dbCache.save()
+		jsonData = json.dumps(value)
+		dbCache, created = self.model.get_or_create(**{self.keys[i]: args[i] for i in range(len(args))}, defaults={"_json": jsonData})
+		if not created:
+			dbCache._json = jsonData
+			dbCache.save()
 
 	def clearCache(self):
 		self.model.delete().execute()
