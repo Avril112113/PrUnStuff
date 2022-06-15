@@ -179,6 +179,22 @@ class FIOApi:
 		return self.get(f"/exchange/station").json()
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def exchangeall(self):
+		logger.info(f"exchangeall()")
+		data = self.get(f"/exchange/all").json()
+		for exchangeJson in data:
+			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
+		return data
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def exchangefull(self):
+		logger.info(f"exchangefull()")
+		data = self.get(f"/exchange/full").json()
+		for exchangeJson in data:
+			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
+		return data
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def ships(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/ships/{username}").json()
