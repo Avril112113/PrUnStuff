@@ -1,23 +1,100 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-
 from dateutil.parser import isoparse
+
+from ..utils import formatTimedelta
 
 if TYPE_CHECKING:
 	from .FIO import FIO
+
+
+class PlanetResource:
+	def __init__(self, json: dict, fio: "FIO"):
+		self.fio = fio
+		self.materialId = json["MaterialId"]
+		self.resourceType = json["ResourceType"]
+		self.factor = json["Factor"]
+
+
+class PlanetBuildRequirement:
+	def __init__(self, json: dict, fio: "FIO"):
+		self.materialName = json["MaterialName"]
+		self.materialId = json["MaterialId"]
+		self.materialTicker = json["MaterialTicker"]
+		self.material = fio.getMaterial(self.materialTicker)
+		self.materialCategory = json["MaterialCategory"]
+		self.materialAmount = json["MaterialAmount"]
+		self.materialWeight = json["MaterialWeight"]
+		self.materialWeight = json["MaterialWeight"]
+
+
+class PlanetProductionFee:
+	def __init__(self, json: dict, fio: "FIO"):
+		self.category = json["Category"]
+		self.workforceLevel = json["WorkforceLevel"]
+		self.feeAmount = json["FeeAmount"]
+		self.feeCurrency = json["FeeCurrency"]
+
+
+class PlanetCOGCProgram:
+	def __init__(self, json: dict, fio: "FIO"):
+		self.programType = json["ProgramType"]
+		self.startEpochMs = json["StartEpochMs"]
+		self.startDatetime = datetime.fromtimestamp(self.startEpochMs/1000)
+		self.endEpochMs = json["EndEpochMs"]
+		self.endDatetime = datetime.fromtimestamp(self.endEpochMs/1000)
+
+
+class PlanetCOGCVote:
+	def __init__(self, json: dict, fio: "FIO"):
+		self.companyName = json["CompanyName"]
+		self.companyCode = json["CompanyCode"]
+		self.influence = json["Influence"]
+		self.voteType = json["VoteType"]
+		self.voteTimeEpochMs = json["VoteTimeEpochMs"]
+		self.voteDatetime = datetime.fromtimestamp(self.voteTimeEpochMs/1000)
+
+
+class PlanetCOGCUpkeep:
+	def __init__(self, json: dict, fio: "FIO"):
+		raise NotImplementedError(str(json))
 
 
 class Planet:
 	def __init__(self, json: dict, fio: "FIO"):
 		self.fio = fio
 
-		# TODO: The list fields below
-		# self.resources = json["Resources"]
-		# self.buildRequirements = json["BuildRequirements"]
-		# self.productionFees = json["ProductionFees"]
-		# self.cogcPrograms = json["COGCPrograms"]
-		# self.cogcVotes = json["COGCVotes"]
-		# self.cogcUpkeep = json["COGCUpkeep"]
+		self.resources = {}
+		for resourceJson in json["Resources"]:
+			resource = PlanetResource(resourceJson, fio)
+			self.resources[resource.materialId] = resource
+
+		self.buildRequirements = {}
+		for requirementJson in json["BuildRequirements"]:
+			requirement = PlanetBuildRequirement(requirementJson, fio)
+			self.buildRequirements[requirement.material] = requirement
+
+		self.productionFees = {}
+		for feeJson in json["ProductionFees"]:
+			productionFee = PlanetProductionFee(feeJson, fio)
+			if productionFee.category not in self.buildRequirements:
+				self.buildRequirements[productionFee.category] = {}
+			self.buildRequirements[productionFee.category][productionFee.workforceLevel] = productionFee
+
+		self.cogcPrograms = []
+		for programJson in json["COGCPrograms"]:
+			program = PlanetCOGCProgram(programJson, fio)
+			self.cogcPrograms.append(program)
+
+		self.cogcVotes = []
+		for voteJson in json["COGCVotes"]:
+			vote = PlanetCOGCVote(voteJson, fio)
+			self.cogcVotes.append(vote)
+
+		self.cogcUpkeep = []
+		for upkeepJson in json["COGCUpkeep"]:
+			upkeep = PlanetCOGCUpkeep(upkeepJson, fio)
+			self.cogcUpkeep.append(upkeep)
 
 		self.planetId = json["PlanetId"]
 		self.planetNaturalId = json["PlanetNaturalId"]
@@ -80,12 +157,11 @@ class Planet:
 		return isoparse(self.timestamp)
 
 	@property
-	def datetime(self):
-		return isoparse(self.timestamp)
-
-	@property
 	def timedelta(self):
 		return datetime.utcnow() - self.datetime
+
+	def getProductionFee(self, category: str, workforceLevel: str):
+		return self.productionFees.get(category, {}).get(workforceLevel, None)
 
 	def formatTimedelta(self):
 		return formatTimedelta(self.timedelta)
