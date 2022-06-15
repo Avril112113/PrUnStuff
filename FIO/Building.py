@@ -5,6 +5,7 @@ from dateutil.parser import isoparse
 
 from .Material import Material
 from .Recipe import Recipe
+from ..utils import formatTimedelta
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -42,13 +43,15 @@ class Building:
 		return hash((self.__class__, self.ticker))
 
 	@property
+	def datetime(self):
+		return isoparse(self.timestamp)
+
+	@property
 	def timedelta(self):
-		return datetime.utcnow() - isoparse(self.timestamp)
+		return datetime.utcnow() - self.datetime
 
 	def formatTimedelta(self):
-		delta = self.timedelta
-		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
-		return f"{days}days {hours}h {minutes}m"
+		return formatTimedelta(self.timedelta)
 
 	def recipesOutputMaterial(self, material: Material):
 		return list(recipe for recipe in self.recipes.values() if recipe.isMaterialOutput(material))

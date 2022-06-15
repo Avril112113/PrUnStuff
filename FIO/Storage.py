@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from dateutil.parser import isoparse
 
 from .Material import Material
+from ..utils import formatTimedelta
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -45,8 +46,15 @@ class Storage:
 		return hash((self.__class__, self.storageId))
 
 	@property
+	def datetime(self):
+		return isoparse(self.timestamp)
+
+	@property
 	def timedelta(self):
-		return datetime.utcnow() - isoparse(self.timestamp)
+		return datetime.utcnow() - self.datetime
+
+	def formatTimedelta(self):
+		return formatTimedelta(self.timedelta)
 
 	def getItemAmount(self, material: Material):
 		"""Gets an item in the storage, defaults to `0` if the storage doesn't contain that item"""

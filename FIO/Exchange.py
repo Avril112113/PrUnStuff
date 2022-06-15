@@ -86,8 +86,12 @@ class MaterialExchange:
 		return hash((self.__class__, self.cxDataModelId))
 
 	@property
+	def datetime(self):
+		return isoparse(self.timestamp)
+
+	@property
 	def timedelta(self):
-		return datetime.utcnow() - isoparse(self.timestamp)
+		return datetime.utcnow() - self.datetime
 
 	def formatTimedelta(self):
 		return formatTimedelta(self.timedelta)
@@ -127,13 +131,15 @@ class Exchange:
 		return hash((self.__class__, self.comexId))
 
 	@property
+	def datetime(self):
+		return isoparse(self.timestamp)
+
+	@property
 	def timedelta(self):
-		return datetime.utcnow() - isoparse(self.timestamp)
+		return datetime.utcnow() - self.datetime
 
 	def formatTimedelta(self):
-		delta = self.timedelta
-		days, hours, minutes = delta.days, delta.seconds // 3600, delta.seconds // 60 % 60
-		return f"{days}days {hours}h {minutes}m"
+		return formatTimedelta(self.timedelta)
 
 	def getMaterialExchange(self, material: Material):
 		return MaterialExchange(self._fio.api.exchange(material.ticker, self.comexCode), self._fio)
