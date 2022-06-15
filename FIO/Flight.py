@@ -51,8 +51,9 @@ class FlightSegment:
 
 
 class Flight:
-	def __init__(self, json: dict, fio: "FIO", userNameSubmitted: str, timestamp: str):
+	def __init__(self, json: dict, fio: "FIO", username: str, userNameSubmitted: str, timestamp: str):
 		self.fio = fio
+		self.username = username
 		self.userNameSubmitted = userNameSubmitted
 		self.timestamp = timestamp
 
@@ -78,8 +79,7 @@ class Flight:
 
 	@property
 	def ship(self):
-		# TODO: based on the username from __init__
-		return self.fio.getMyShip(self.shipId)
+		return self.fio.getShip(self.username, self.shipId)
 
 	@property
 	def datetime(self):

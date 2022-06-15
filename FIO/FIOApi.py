@@ -48,7 +48,7 @@ class FIOApi:
 	# 	return response
 
 	@property
-	def _default_name(self):
+	def default_name(self):
 		if self._auth_name is None:
 			self.auth()
 		return self._auth_name
@@ -136,7 +136,7 @@ class FIOApi:
 		return self.get(f"/sites/{username.upper()}").json()
 
 	def mysites(self):
-		return self.sites(self._default_name)
+		return self.sites(self.default_name)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def site(self, username: str, planet: str):
@@ -144,7 +144,7 @@ class FIOApi:
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
 
 	def mysite(self, planet: str):
-		return self.site(self._default_name, planet)
+		return self.site(self.default_name, planet)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storages(self, username: str):
@@ -152,7 +152,7 @@ class FIOApi:
 		return self.get(f"/storage/{username.upper()}").json()
 
 	def mystorages(self):
-		return self.storages(self._default_name)
+		return self.storages(self.default_name)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storage(self, username: str, storageDescription: str):
@@ -166,7 +166,7 @@ class FIOApi:
 		"""
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		return self.storage(self._default_name, storageDescription)
+		return self.storage(self.default_name, storageDescription)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def exchange(self, material: str, commodityExchange: str):
@@ -184,7 +184,7 @@ class FIOApi:
 		return self.get(f"/ship/ships/{username}").json()
 
 	def myships(self):
-		return self.ships(self._default_name)
+		return self.ships(self.default_name)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def shipsfuel(self, username: str):
@@ -192,7 +192,7 @@ class FIOApi:
 		return self.get(f"/ship/ships/fuel/{username}").json()
 
 	def myshipsfuel(self):
-		return self.shipsfuel(self._default_name)
+		return self.shipsfuel(self.default_name)
 
 	@jsoncache(paramOpts=[ParamOpts(upper=True)])
 	def flights(self, username: str):
@@ -200,4 +200,4 @@ class FIOApi:
 		return self.get(f"/ship/flights/{username}").json()
 
 	def myflights(self):
-		return self.flights(self._default_name)
+		return self.flights(self.default_name)

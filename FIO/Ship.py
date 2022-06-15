@@ -9,8 +9,9 @@ if TYPE_CHECKING:
 
 
 class Ship:
-	def __init__(self, json: dict, fio: "FIO", userNameSubmitted: str, timestamp: str):
+	def __init__(self, json: dict, fio: "FIO", username: str, userNameSubmitted: str, timestamp: str):
 		self.fio = fio
+		self.username = username
 		self.userNameSubmitted = userNameSubmitted
 		self.timestamp = timestamp
 
@@ -46,8 +47,7 @@ class Ship:
 
 	@property
 	def flight(self):
-		# TODO: based on the username from __init__
-		return None if self.flightId is None else self.fio.getMyFlight(self.flightId)
+		return None if self.flightId is None else self.fio.getFlight(self.username, self.flightId)
 
 	@property
 	def datetime(self):

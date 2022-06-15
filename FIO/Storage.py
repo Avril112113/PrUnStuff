@@ -23,7 +23,9 @@ class StorageItem:
 
 
 class Storage:
-	def __init__(self, json: dict, fio: "FIO"):
+	def __init__(self, json: dict, fio: "FIO", username: str):
+		self.username = username
+
 		self.storageItems = {}
 		for item in json["StorageItems"]:
 			self.storageItems[fio.getMaterial(item["MaterialTicker"])] = StorageItem(item, fio)

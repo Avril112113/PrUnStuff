@@ -47,8 +47,9 @@ class FIO:
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		data = self.api.mysite(planet) if username is None else self.api.site(username, planet)
-		return Site(data, self)
+		username = self.api.default_name if username is None else username
+		data = self.api.site(username, planet)
+		return Site(data, self, username)
 
 	def getMySite(self, planet: str):
 		"""
@@ -65,8 +66,9 @@ class FIO:
 		:param username:
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		data = self.api.mystorage(storageDescription) if username is None else self.api.storage(username, storageDescription)
-		return Storage(data, self)
+		username = self.api.default_name if username is None else username
+		data = self.api.storage(username, storageDescription)
+		return Storage(data, self, username)
 
 	def getMyStorage(self, storageDescription: str):
 		"""
@@ -97,8 +99,9 @@ class FIO:
 
 	@lru_cache
 	def getShips(self, username: Optional[str]):
-		data = self.api.myships() if username is None else self.api.ships(username)
-		return [Ship(ship, self, data["UserNameSubmitted"], data["Timestamp"]) for ship in data["Ships"]]
+		username = self.api.default_name if username is None else username
+		data = self.api.ships(username)
+		return [Ship(ship, self, username, data["UserNameSubmitted"], data["Timestamp"]) for ship in data["Ships"]]
 
 	@lru_cache
 	def getMyShips(self):
@@ -116,8 +119,9 @@ class FIO:
 
 	@lru_cache
 	def getShipsFuel(self, username: Optional[str]):
-		data = self.api.myshipsfuel() if username is None else self.api.shipsfuel(username)
-		return [Storage(storage, self) for storage in data]
+		username = self.api.default_name if username is None else username
+		data = self.api.shipsfuel(username)
+		return [Storage(storage, self, username) for storage in data]
 
 	def getMyShipsFuel(self):
 		return self.getShipsFuel(None)
@@ -134,8 +138,9 @@ class FIO:
 
 	@lru_cache
 	def getFlights(self, username: Optional[str]):
-		data = self.api.myflights() if username is None else self.api.flights(username)
-		return [Flight(flight, self, data["UserNameSubmitted"], data["Timestamp"]) for flight in data["Flights"]]
+		username = self.api.default_name if username is None else username
+		data = self.api.flights(username)
+		return [Flight(flight, self, username, data["UserNameSubmitted"], data["Timestamp"]) for flight in data["Flights"]]
 
 	def getMyFlights(self):
 		return self.getFlights(None)

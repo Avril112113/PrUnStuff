@@ -24,7 +24,9 @@ class SiteBuilding:
 
 
 class Site:
-	def __init__(self, json: dict, fio: "FIO"):
+	def __init__(self, json: dict, fio: "FIO", username: str):
+		self.username = username
+
 		self.buildings = []
 		for building in json["Buildings"]:
 			self.buildings.append(SiteBuilding(building, fio))
