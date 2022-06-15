@@ -11,6 +11,7 @@ Use the following to see when data is being retrieved from FIO, as retrieving th
 import logging
 
 logging.basicConfig(level=logging.NOTSET)
+logging.getLogger("peewee").disabled = True
 logging.getLogger("urllib3.connectionpool").disabled = True
 ```
 
