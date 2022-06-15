@@ -178,7 +178,7 @@ class FIOApi:
 		logger.info(f"exchangestation()")
 		return self.get(f"/exchange/station").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def exchangeall(self):
 		logger.info(f"exchangeall()")
 		data = self.get(f"/exchange/all").json()
@@ -186,7 +186,7 @@ class FIOApi:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
 	def exchangefull(self):
 		logger.info(f"exchangefull()")
 		data = self.get(f"/exchange/full").json()
