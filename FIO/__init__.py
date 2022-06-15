@@ -8,3 +8,5 @@ from .Recipe import Recipe, RecipeMaterial
 from .Storage import Storage, StorageItem
 from .Site import Site, SiteBuilding
 from .Exchange import Exchange, MaterialExchange, MaterialExchangeOrder
+from .Ship import Ship
+from .Flight import Flight, FlightSegment, FlightLine

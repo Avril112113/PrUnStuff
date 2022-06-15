@@ -177,3 +177,27 @@ class FIOApi:
 	def exchangestation(self):
 		logger.info(f"exchangestation()")
 		return self.get(f"/exchange/station").json()
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def ships(self, username: str):
+		logger.info(f"ships(\"{username}\")")
+		return self.get(f"/ship/ships/{username}").json()
+
+	def myships(self):
+		return self.ships(self._default_name)
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def shipsfuel(self, username: str):
+		logger.info(f"ships(\"{username}\")")
+		return self.get(f"/ship/ships/fuel/{username}").json()
+
+	def myshipsfuel(self):
+		return self.shipsfuel(self._default_name)
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def flights(self, username: str):
+		logger.info(f"ships(\"{username}\")")
+		return self.get(f"/ship/flights/{username}").json()
+
+	def myflights(self):
+		return self.flights(self._default_name)

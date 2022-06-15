@@ -1,5 +1,6 @@
 # for some reason `@cache` was nuking typing info :/
 from functools import cache, lru_cache
+from typing import Optional
 
 from .FIOApi import FIOApi
 from .Material import Material
@@ -9,6 +10,8 @@ from .Storage import Storage
 from .Recipe import Recipe
 from .Site import Site
 from .Exchange import Exchange
+from .Ship import Ship
+from .Flight import Flight
 
 
 class FIO:
@@ -40,35 +43,36 @@ class FIO:
 		return Planet(self.api.planet(planet), self)
 
 	@lru_cache
-	def getSite(self, username: str, planet: str):
+	def getSite(self, username: Optional[str], planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		return Site(self.api.site(username, planet), self)
+		data = self.api.mysite(planet) if username is None else self.api.site(username, planet)
+		return Site(data, self)
 
-	@lru_cache
 	def getMySite(self, planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		return Site(self.api.mysite(planet), self)
+		return self.getSite(None, planet)
 
 	def clearSiteCache(self):
 		self.api.site.clearCache()  # Method from jsoncache.py
 
 	@lru_cache
-	def getStorage(self, username: str, storageDescription: str):
+	def getStorage(self, username: Optional[str], storageDescription: str):
 		"""
+		:param username:
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		return Storage(self.api.storage(username, storageDescription), self)
+		data = self.api.mystorage(storageDescription) if username is None else self.api.storage(username, storageDescription)
+		return Storage(data, self)
 
-	@lru_cache
 	def getMyStorage(self, storageDescription: str):
 		"""
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
-		return Storage(self.api.mystorage(storageDescription), self)
+		return self.getStorage(None, storageDescription)
 
 	def clearStorageCache(self):
 		self.api.storage.clearCache()  # Method from jsoncache.py
@@ -90,3 +94,61 @@ class FIO:
 
 	def clearMaterialExchangeCache(self):
 		self.api.exchange.clearCache()  # Method from jsoncache.py
+
+	@lru_cache
+	def getShips(self, username: Optional[str]):
+		data = self.api.myships() if username is None else self.api.ships(username)
+		return [Ship(ship, self, data["UserNameSubmitted"], data["Timestamp"]) for ship in data["Ships"]]
+
+	@lru_cache
+	def getMyShips(self):
+		return self.getShips(None)
+
+	@lru_cache
+	def getShip(self, username: Optional[str], idOrRegistration: str):
+		for ship in self.getShips(username):
+			if ship.shipId == idOrRegistration or ship.registration == idOrRegistration:
+				return ship
+		return None
+
+	def getMyShip(self, idOrRegistration: str):
+		return self.getShip(None, idOrRegistration)
+
+	@lru_cache
+	def getShipsFuel(self, username: Optional[str]):
+		data = self.api.myshipsfuel() if username is None else self.api.shipsfuel(username)
+		return [Storage(storage, self) for storage in data]
+
+	def getMyShipsFuel(self):
+		return self.getShipsFuel(None)
+
+	@lru_cache
+	def getShipFuel(self, username: Optional[str], idOrRegistration: str):
+		for storage in self.getShipsFuel(username):
+			if storage.addressableId == idOrRegistration or storage.name == idOrRegistration:
+				return storage
+		return None
+
+	def getMyShipFuel(self, idOrRegistration: str):
+		return self.getShipFuel(None, idOrRegistration)
+
+	@lru_cache
+	def getFlights(self, username: Optional[str]):
+		data = self.api.myflights() if username is None else self.api.flights(username)
+		return [Flight(flight, self, data["UserNameSubmitted"], data["Timestamp"]) for flight in data["Flights"]]
+
+	def getMyFlights(self):
+		return self.getFlights(None)
+
+	@lru_cache
+	def getFlight(self, username: Optional[str], idOrShipIdOrShipRegistration: str):
+		for flight in self.getFlights(username):
+			if \
+				flight.flightId == idOrShipIdOrShipRegistration or \
+				flight.ship.shipId == idOrShipIdOrShipRegistration or \
+				flight.ship.registration == idOrShipIdOrShipRegistration:
+				return flight
+		return None
+
+	def getMyFlight(self, idOrRegistration: str):
+		return self.getFlight(None, idOrRegistration)
