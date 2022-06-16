@@ -1,18 +1,12 @@
 import functools
 import inspect
-import json
 import os
 import typing
 from datetime import datetime, timedelta
 from peewee import *
 from peewee import Metadata
-
-
-class JsonCacheEncoder(json.JSONEncoder):
-	def default(self, obj):
-		if isinstance(obj, datetime):
-			return {"__class__": "datetime", "__value__": obj.isoformat()}
-		return json.JSONEncoder.default(self, obj)
+# import orjson
+import quickle
 
 
 def jsonCacheHook(dct):
@@ -40,18 +34,25 @@ class JsonCache:
 	VALUE_KEY = "cached_value"
 	dbs = {}
 
-	def __init__(self, f: callable, paramOpts: list[ParamOpts] = None, invalidateTime: timedelta = None):
+	def __init__(
+			self, f: callable,
+			paramOpts: list[ParamOpts] = None,
+			invalidateTime: timedelta = None,
+			speedQueryFields: list[str] = None):
 		"""
 		WARN: Does not support kwargs (AKA default arguments), they are simply not accepted to enforce this
 		WARN: Only supports string arguments
+		`speedQuery` only works when the result of this function is a dictionary
 		:param f: The original function
 		:param paramOpts: The options for each parameter
 		:param invalidateTime: The timedelta before the cache is refreshed
+		:param speedQueryFields: List of extra fields to store in the cache database
 		"""
 		self.f = f
 		self.hasSelf = next(iter(inspect.signature(f).parameters.values())).name == "self"
 		self.paramOpts = paramOpts if paramOpts is not None else []
 		self.invalidateTime = invalidateTime
+		self.speedQueryFields = speedQueryFields if speedQueryFields is not None else []
 
 		self.db_file_path = f"{os.path.dirname(os.path.abspath(inspect.getfile(f)))}/cache.db"
 		self.db = self.dbs.get(self.db_file_path, None)
@@ -73,7 +74,9 @@ class JsonCache:
 				self.keys.append(param.name)
 		if len(self.keys) <= 0:
 			CacheModel._meta.add_field("id", AutoField())
-		CacheModel._meta.add_field("_json", TextField())
+		CacheModel._meta.add_field("_data", BlobField())
+		for fieldName in self.speedQueryFields:
+			CacheModel._meta.add_field(f"_sq_{fieldName}", TextField())
 		CacheModel._meta.set_table_name(f.__name__)
 		CacheModel.bind(self.db)
 		self.model = CacheModel
@@ -92,23 +95,42 @@ class JsonCache:
 		if dbCache is not None:
 			invalid = self.invalidateTime is not None and datetime.now() > datetime.fromisoformat(str(dbCache._modified))+self.invalidateTime
 			if not invalid:
-				return json.loads(dbCache._json)
+				return quickle.loads(dbCache._data)
 		if self.hasSelf:
 			args.insert(0, rawArgs[0])
 		value = self.f(*args)
+		dbFields = {
+			"_data": quickle.dumps(value)
+		}
+		for fieldName in self.speedQueryFields:
+			dbFields[f"_sq_{fieldName}"] = value[fieldName]
 		if dbCache is not None:
-			dbCache._json = json.dumps(value)
+			for field, value in dbFields.items():
+				setattr(dbCache, field, value)
 			dbCache.save()
 		else:
-			self.model.create(**recordKeys, _json=json.dumps(value))
+			self.model.create(**recordKeys, **dbFields)
 		return value
 
 	def cacheValue(self, value, *args):
-		jsonData = json.dumps(value)
-		dbCache, created = self.model.get_or_create(**{self.keys[i]: args[i] for i in range(len(args))}, defaults={"_json": jsonData})
+		jsonData = quickle.dumps(value)
+		defaults = {"_data": jsonData}
+		for fieldName in self.speedQueryFields:
+			defaults[f"_sq_{fieldName}"] = value[fieldName]
+		dbCache, created = self.model.get_or_create(**{self.keys[i]: args[i] for i in range(len(args))}, defaults=defaults)
 		if not created:
-			dbCache._json = jsonData
+			dbCache._data = jsonData
 			dbCache.save()
+
+	def isCached(self, *args):
+		return self.model.get_or_none(**{self.keys[i]: args[i] for i in range(len(args))}) is not None
+
+	def speedQuery(self, speedQueryField: str, value: typing.Union[str, int]):
+		fieldName = f"_sq_{speedQueryField}"
+		values = []
+		for data in self.model.select().filter(**{fieldName: value}).execute():
+			values.append({key: getattr(data, f"{key}") for key in self.keys})
+		return values
 
 	def clearCache(self):
 		self.model.delete().execute()
@@ -117,13 +139,18 @@ class JsonCache:
 		"""This is used for a very hacky solution..."""
 		setattr(wrapper, "cacheValue", self.cacheValue)
 		setattr(wrapper, "clearCache", self.clearCache)
+		setattr(wrapper, "isCached", self.isCached)
+		setattr(wrapper, "speedQuery", self.speedQuery)
 
 
-def jsoncache(paramOpts: list[ParamOpts] = None, invalidateTime: timedelta = None):
+def jsoncache(
+		paramOpts: list[ParamOpts] = None,
+		invalidateTime: timedelta = None,
+		speedQueryFields: list[str] = None):
 	T = typing.TypeVar("T", bound=typing.Callable)
 
 	def decorator(f: T) -> T:
-		cache = JsonCache(f, paramOpts, invalidateTime)
+		cache = JsonCache(f, paramOpts, invalidateTime, speedQueryFields)
 
 		@functools.wraps(f)
 		def wrap(*args):

@@ -30,6 +30,8 @@ class RecipeMaterial:
 
 class Recipe:
 	def __init__(self, json: dict, fio: "FIO", building: "Building" = None):
+		self.fio = fio
+
 		self.inputs = {}
 		for recipeInputJson in json["Inputs"]:
 			recipeInput = RecipeMaterial(recipeInputJson, fio)
@@ -41,12 +43,8 @@ class Recipe:
 		self.timeMs = json.get("DurationMs", json.get("TimeMs", None))
 		self.timeDelta = timedelta(milliseconds=self.timeMs)
 		self.recipeName = json["RecipeName"]
-		if building is not None:
-			self.buildingTicker = building.ticker
-			self.building = building
-		else:
-			self.buildingTicker = json["BuildingTicker"]
-			self.building: Optional["Building"] = fio.getBuilding(self.buildingTicker)
+		self.buildingTicker = json["BuildingTicker"] if building is None else building.ticker
+		self._building = None if building is None else building
 
 	def __repr__(self):
 		return f"<Recipe `{self.recipeName}`>"
@@ -59,3 +57,9 @@ class Recipe:
 
 	def isMaterialOutput(self, material: Material):
 		return any(material == recipeOutput.material for recipeOutput in self.outputs.values())
+
+	@property
+	def building(self):
+		if self._building is None:
+			self.fio.getBuilding(self.buildingTicker)
+		return self._building

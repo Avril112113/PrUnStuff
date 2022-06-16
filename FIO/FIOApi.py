@@ -80,7 +80,7 @@ class FIOApi:
 
 	@jsoncache()
 	def allplanets(self):
-		logger.info("allplanets()")
+		logger.info("allplanets() WARNING: This can take a long time to process.")
 		data = self.get("/planet/allplanets/full").json()
 		for planetJson in data:
 			self.planet.cacheValue(planetJson, planetJson["PlanetId"])
@@ -88,7 +88,7 @@ class FIOApi:
 			self.planet.cacheValue(planetJson, planetJson["PlanetName"])
 		return data
 
-	@jsoncache()
+	@jsoncache(speedQueryFields=["SystemId"])
 	def planet(self, planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -217,3 +217,39 @@ class FIOApi:
 
 	def myflights(self):
 		return self.flights(self.default_name)
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def systemstars(self):
+		logger.info(f"systemstars()")
+		return self.get(f"/systemstars").json()
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def systemstarsworldsectors(self):
+		logger.info(f"systemstarsworldsectors()")
+		return self.get(f"/systemstars/worldsectors").json()
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def systemstarsstar(self, star: str):
+		"""
+		:param star: SystemId, SystemName or SystemNaturalId
+		"""
+		logger.info(f"systemstarsstar(\"{star}\")")
+		return self.get(f"/systemstars/star/{star}").json()
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def systemstarjumpcount(self, source: str, destination: str):
+		"""
+		:param source: SystemId, PlanetId, PlanetNaturalId or PlanetName
+		:param destination: SystemId, PlanetId, PlanetNaturalId or PlanetName
+		"""
+		logger.info(f"systemstarjumpcount(\"{source}\", \"{destination}\")")
+		return self.get(f"/systemstars/jumpcount/{source}/{destination}").json()
+
+	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	def systemstarjumproute(self, source: str, destination: str):
+		"""
+		:param source: SystemId, PlanetId, PlanetNaturalId or PlanetName
+		:param destination: SystemId, PlanetId, PlanetNaturalId or PlanetName
+		"""
+		logger.info(f"systemstarjumproute(\"{source}\", \"{destination}\")")
+		return self.get(f"/systemstars/jumproute/{source}/{destination}").json()

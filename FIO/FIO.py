@@ -12,6 +12,8 @@ from .Site import Site
 from .Exchange import Exchange
 from .Ship import Ship
 from .Flight import Flight
+from .System import System
+from .WorldSector import WorldSector
 
 
 class FIO:
@@ -28,12 +30,27 @@ class FIO:
 		return Material(self.api.material(ticker.upper()), self)
 
 	@lru_cache
+	def getAllMaterials(self):
+		return list(self.getMaterial(materialJson["Ticker"]) for materialJson in self.api.allmaterials())
+
+	@lru_cache
 	def getBuilding(self, ticker: str):
 		return Building(self.api.building(ticker.upper()), self)
 
 	@lru_cache
-	def getRecipe(self, ticker: str):
-		return Recipe(self.api.recipes(ticker), self)
+	def getAllBuildings(self):
+		# This is done because `Building` loads materials from the FIO API, which is every material if we load all buildings
+		# This also speeds stuff up a lot
+		self.getAllMaterials()
+		return list(self.getBuilding(buildingJson["Ticker"]) for buildingJson in self.api.allbuildings())
+
+	@lru_cache
+	def getRecipe(self, recipeName: str):
+		return Recipe(self.api.recipes(recipeName), self)
+
+	@lru_cache
+	def getAllRecipes(self):
+		return list(self.getRecipe(recipeJson["RecipeName"]) for recipeJson in self.api.allrecipes())
 
 	@lru_cache
 	def getPlanet(self, planet: str):
@@ -43,8 +60,13 @@ class FIO:
 		return Planet(self.api.planet(planet), self)
 
 	@lru_cache
+	def getAllPlanets(self):
+		return list(self.getPlanet(planetJson["PlanetId"]) for planetJson in self.api.allplanets())
+
+	@lru_cache
 	def getSite(self, username: Optional[str], planet: str):
 		"""
+		:param username:
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
 		"""
 		username = self.api.default_name if username is None else username
@@ -157,3 +179,27 @@ class FIO:
 
 	def getMyFlight(self, idOrRegistration: str):
 		return self.getFlight(None, idOrRegistration)
+
+	@lru_cache
+	def getSystems(self):
+		return list(System(systemJson, self) for systemJson in self.api.systemstars())
+
+	@lru_cache
+	def getSystemsMap(self):
+		systemsMap = {}
+		for systemJson in self.api.systemstars():
+			system = System(systemJson, self)
+			systemsMap[system.systemId] = system
+			systemsMap[system.name] = system
+			systemsMap[system.naturalId] = system
+		return systemsMap
+
+	@lru_cache
+	def getSystem(self, systemId: str):
+		"""
+		:param systemId: SystemId, SystemName or SystemNaturalId
+		"""
+		return self.getSystemsMap().get(systemId, None)
+
+	def getWorldSectors(self):
+		return {worldSectorJson["SectorId"]: WorldSector(worldSectorJson, self) for worldSectorJson in self.api.systemstarsworldsectors()}
