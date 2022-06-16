@@ -139,17 +139,17 @@ class DBCache:
 			if not invalid:
 				return quickle.loads(dbCache._data)
 		if self.hasSelf:
-			value = self.f(rawArgs[0], *args)
+			callResult = self.f(rawArgs[0], *args)
 		else:
-			value = self.f(*args)
-		dbFields = self.getModelFieldValues(args, value)
+			callResult = self.f(*args)
+		dbFields = self.getModelFieldValues(args, callResult)
 		if dbCache is not None:
 			for field, value in dbFields.items():
 				setattr(dbCache, field, value)
 			dbCache.save()
 		else:
 			self.model.create(**dbFields)
-		return value
+		return callResult
 
 	def cacheValue(self, value, *args: str):
 		dbCache = self.model.get_or_none(self.getQueryExpression(args))
