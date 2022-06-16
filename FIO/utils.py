@@ -1,26 +1,8 @@
 import re
 from datetime import timedelta
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-	from .FIO import FIO
 
 
 LOCATION_REGEX = re.compile(r"(\w+) \(([\w-]+)\) - (?:(\w+) \(([\w-]+)\))?(STATION)?")
-
-
-def parseLocation(fio: "FIO", location: str):
-	match = LOCATION_REGEX.match(location)
-	if match is None:
-		return None, None, None
-	systemName, systemNaturalId, planetName, planetNaturalId, otherPlaceName = match.groups()
-	system = None
-	planet = None
-	if systemNaturalId is not None:
-		system = fio.getSystem(systemNaturalId)
-	if planetNaturalId is not None:
-		planet = fio.getPlanet(planetNaturalId)
-	return system, planet, otherPlaceName
 
 
 def formatTimedelta(timeDelta: timedelta, alwaysIncludeSeconds=False):

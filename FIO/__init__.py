@@ -1,6 +1,7 @@
 from .FIOApi import FIOApi
 
 from .FIO import FIO
+from .Location import Location
 from .Material import Material
 from .Planet import Planet
 from .Building import Building

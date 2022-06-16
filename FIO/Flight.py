@@ -4,7 +4,8 @@ from dateutil.parser import isoparse
 
 from .System import System
 from .Planet import Planet
-from .utils import formatTimedelta, parseLocation
+from .Location import Location
+from .utils import formatTimedelta
 
 
 if TYPE_CHECKING:
@@ -76,12 +77,8 @@ class Flight:
 		self.stlDistance: int = json["StlDistance"]
 		self.ftlDistance: int = json["FtlDistance"]
 		self.isAborted: bool = json["IsAborted"]
-		self._originSystem: Optional[System] = None
-		self._originPlanet: Optional[Planet] = None
-		self._originOtherPlaceName: Optional[Planet] = None
-		self._destinationSystem: Optional[System] = None
-		self._destinationPlanet: Optional[Planet] = None
-		self._destinationOtherPlaceName: Optional[Planet] = None
+		self._originLocation: Optional[Location] = None
+		self._destinationLocation: Optional[Location] = None
 
 	def __repr__(self):
 		return f"<Flight `{self.flightId}`>"
@@ -94,40 +91,16 @@ class Flight:
 		return self.fio.getShip(self.username, self.shipId)
 
 	@property
-	def originSystem(self):
-		if self._originSystem is None:
-			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
-		return self._originSystem
+	def originLocation(self):
+		if self._originLocation is None:
+			self._originLocation = Location.fromLocationString(self.fio, self.origin)
+		return self._originLocation
 
 	@property
-	def originPlanet(self):
-		if self._originPlanet is None:
-			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
-		return self._originPlanet
-
-	@property
-	def originOtherPlaceName(self):
-		if self._originOtherPlaceName is None:
-			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
-		return self._originOtherPlaceName
-
-	@property
-	def destinationSystem(self):
-		if self._destinationSystem is None:
-			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
-		return self._destinationSystem
-
-	@property
-	def destinationPlanet(self):
-		if self._destinationPlanet is None:
-			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
-		return self._destinationPlanet
-
-	@property
-	def destinationOtherPlaceName(self):
-		if self._destinationOtherPlaceName is None:
-			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
-		return self._destinationOtherPlaceName
+	def destinationLocation(self):
+		if self._destinationLocation is None:
+			self._destinationLocation = Location.fromLocationString(self.fio, self.origin)
+		return self._destinationLocation
 
 	@property
 	def datetime(self):

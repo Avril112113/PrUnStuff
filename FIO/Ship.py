@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from dateutil.parser import isoparse
 
-from .System import System
-from .Planet import Planet
-from .utils import formatTimedelta, parseLocation
+from .Location import Location
+from .utils import formatTimedelta
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -38,11 +37,9 @@ class Ship:
 		self.condition: float = json["Condition"]
 		self.lastRepairEpochMs: int = json["LastRepairEpochMs"]
 		self.lastRepairDatetime = None if self.lastRepairEpochMs is None else datetime.fromtimestamp(self.lastRepairEpochMs / 1000)
-		self.location: str = json["Location"]
+		self.locationStr: str = json["Location"]  # The only time I will break my rule of "keep the fields the same as the json"...
 		self.stlFuelFlowRate: float = json["StlFuelFlowRate"]
-		self._system: Optional[System] = None
-		self._planet: Optional[Planet] = None
-		self._otherPlaceName: Optional[str] = None
+		self._location: Optional[Location] = None
 
 	def __repr__(self):
 		return f"<Ship `{self.registration}`>"
@@ -78,22 +75,11 @@ class Ship:
 		return self.fio.getShipFuel(self.username, self.shipId)
 
 	@property
-	def system(self):
-		if self._system is None:
-			self._system, self._planet, self._otherPlaceName = parseLocation(self.fio, self.location)
-		return self._system
-
-	@property
-	def planet(self):
-		if self._planet is None:
-			self._system, self._planet, self._otherPlaceName = parseLocation(self.fio, self.location)
-		return self._planet
-
-	@property
-	def otherPlaceName(self):
-		if self._otherPlaceName is None:
-			self._system, self._planet, self._otherPlaceName = parseLocation(self.fio, self.location)
-		return self._otherPlaceName
+	def location(self):
+		if self._location is None:
+			self._location = Location.fromLocationString(self.fio, self.locationStr)
+			self._location.inFlight = self.flightId is not None
+		return self._location
 
 	@property
 	def datetime(self):
