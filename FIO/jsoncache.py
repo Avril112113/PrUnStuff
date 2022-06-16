@@ -3,9 +3,10 @@ import inspect
 import os
 import typing
 from datetime import datetime, timedelta
+
+import peewee
 from peewee import *
 from peewee import Metadata
-# import orjson
 import quickle
 
 
@@ -34,11 +35,13 @@ class JsonCache:
 	VALUE_KEY = "cached_value"
 	dbs = {}
 
+	# noinspection PyProtectedMember
 	def __init__(
 			self, f: callable,
 			paramOpts: list[ParamOpts] = None,
 			invalidateTime: timedelta = None,
-			speedQueryFields: list[str] = None):
+			speedQueryFields: list[str] = None,
+			variedParams: dict[str, tuple[str, ...]] = None):
 		"""
 		WARN: Does not support kwargs (AKA default arguments), they are simply not accepted to enforce this
 		WARN: Only supports string arguments
@@ -53,6 +56,7 @@ class JsonCache:
 		self.paramOpts = paramOpts if paramOpts is not None else []
 		self.invalidateTime = invalidateTime
 		self.speedQueryFields = speedQueryFields if speedQueryFields is not None else []
+		self.variedParams = variedParams if variedParams is not None else []
 
 		self.db_file_path = f"{os.path.dirname(os.path.abspath(inspect.getfile(f)))}/cache.db"
 		self.db = self.dbs.get(self.db_file_path, None)
@@ -63,17 +67,20 @@ class JsonCache:
 		class CacheModel(Model):
 			_meta: Metadata
 			_modified = DateTimeField(default=datetime.now)
+			id = AutoField()
 
 			def save(self, *args, **kwargs):
 				self._modified = datetime.now()
 				return super(CacheModel, self).save(*args, **kwargs)
-		self.keys = []
+		self.paramNames = []
 		for param in inspect.signature(f).parameters.values():
 			if param.name != "self" and param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
-				CacheModel._meta.add_field(param.name, TextField())
-				self.keys.append(param.name)
-		if len(self.keys) <= 0:
-			CacheModel._meta.add_field("id", AutoField())
+				if param.name in self.variedParams:
+					for variedParam in self.variedParams[param.name]:
+						CacheModel._meta.add_field(f"{param.name}_{variedParam}", TextField())
+				else:
+					CacheModel._meta.add_field(param.name, TextField())
+				self.paramNames.append(param.name)
 		CacheModel._meta.add_field("_data", BlobField())
 		for fieldName in self.speedQueryFields:
 			CacheModel._meta.add_field(f"_sq_{fieldName}", TextField())
@@ -82,54 +89,91 @@ class JsonCache:
 		self.model = CacheModel
 		self.db.create_tables([CacheModel])
 
+	def getQueryExpression(self, args: typing.Union[list[str], tuple[str]]):
+		if len(args) == 0:
+			return self.model.id == 1
+		query: typing.Optional[peewee.Expression] = None
+		for i in range(len(args)):
+			expr: typing.Optional[peewee.Expression] = None
+			paramName = self.paramNames[i]
+			if paramName in self.variedParams:
+				for variedParam in self.variedParams[paramName]:
+					field: peewee.Field = getattr(self.model, f"{paramName}_{variedParam}")
+					subExpr = field == args[i]
+					if expr is None:
+						expr = subExpr
+					else:
+						expr = expr | subExpr
+			else:
+				field: peewee.Field = getattr(self.model, paramName)
+				expr = field == args[i]
+			if query is None:
+				query = expr
+			else:
+				query = query & expr
+		return query
+	
+	def getModelFieldValues(self, args: typing.Union[list[str], tuple[str]], value: any):
+		fields = {
+			"_data": quickle.dumps(value)
+		}
+		for i in range(len(args)):
+			paramName = self.paramNames[i]
+			if paramName in self.variedParams:
+				for variedParam in self.variedParams[paramName]:
+					fields[f"{paramName}_{variedParam}"] = value[variedParam]
+			else:
+				fields[f"{paramName}"] = args[i]
+		for fieldName in self.speedQueryFields:
+			fields[f"_sq_{fieldName}"] = value[fieldName]
+		return fields
+
+	def getValueFromParamName(self, data: Model, paramName: str):
+		if paramName in self.variedParams:
+			return getattr(data, f"{paramName}_{self.variedParams[paramName][0]}")
+		else:
+			return getattr(data, paramName)
+
 	def __call__(self, *rawArgs):
 		startIndex = 1 if self.hasSelf else 0
 		args = [
 			(self.paramOpts[i-startIndex].convert(rawArgs[i]) if (len(self.paramOpts) > i-startIndex and self.paramOpts[i-startIndex] is not None) else rawArgs[i])
 			for i in range(startIndex, len(rawArgs))
 		]
-		recordKeys = {self.keys[i]: args[i] for i in range(len(args))}
-		if len(recordKeys) == 0:
-			recordKeys = {"id": 0}
-		dbCache = self.model.get_or_none(**recordKeys)
+		dbCache = self.model.get_or_none(self.getQueryExpression(args))
 		if dbCache is not None:
 			invalid = self.invalidateTime is not None and datetime.now() > datetime.fromisoformat(str(dbCache._modified))+self.invalidateTime
 			if not invalid:
 				return quickle.loads(dbCache._data)
 		if self.hasSelf:
-			args.insert(0, rawArgs[0])
-		value = self.f(*args)
-		dbFields = {
-			"_data": quickle.dumps(value)
-		}
-		for fieldName in self.speedQueryFields:
-			dbFields[f"_sq_{fieldName}"] = value[fieldName]
+			value = self.f(rawArgs[0], *args)
+		else:
+			value = self.f(*args)
+		dbFields = self.getModelFieldValues(args, value)
 		if dbCache is not None:
 			for field, value in dbFields.items():
 				setattr(dbCache, field, value)
 			dbCache.save()
 		else:
-			self.model.create(**recordKeys, **dbFields)
+			self.model.create(**dbFields)
 		return value
 
-	def cacheValue(self, value, *args):
-		jsonData = quickle.dumps(value)
-		defaults = {"_data": jsonData}
-		for fieldName in self.speedQueryFields:
-			defaults[f"_sq_{fieldName}"] = value[fieldName]
-		dbCache, created = self.model.get_or_create(**{self.keys[i]: args[i] for i in range(len(args))}, defaults=defaults)
-		if not created:
-			dbCache._data = jsonData
+	def cacheValue(self, value, *args: str):
+		dbCache = self.model.get_or_none(self.getQueryExpression(args))
+		if dbCache is None:
+			self.model.create(**self.getModelFieldValues(args, value))
+		else:
+			dbCache._data = quickle.dumps(value)
 			dbCache.save()
 
-	def isCached(self, *args):
-		return self.model.get_or_none(**{self.keys[i]: args[i] for i in range(len(args))}) is not None
+	def isCached(self, *args: str):
+		return self.model.get_or_none(self.getQueryExpression(args)) is not None
 
 	def speedQuery(self, speedQueryField: str, value: typing.Union[str, int]):
 		fieldName = f"_sq_{speedQueryField}"
 		values = []
-		for data in self.model.select().filter(**{fieldName: value}).execute():
-			values.append({key: getattr(data, f"{key}") for key in self.keys})
+		for data in self.model.select().where(getattr(self.model, fieldName) == value).execute():
+			values.append({paramName: self.getValueFromParamName(data, paramName) for paramName in self.paramNames})
 		return values
 
 	def clearCache(self):
@@ -146,11 +190,12 @@ class JsonCache:
 def jsoncache(
 		paramOpts: list[ParamOpts] = None,
 		invalidateTime: timedelta = None,
-		speedQueryFields: list[str] = None):
+		speedQueryFields: list[str] = None,
+		variedParams: dict[str, tuple[str, ...]] = None):
 	T = typing.TypeVar("T", bound=typing.Callable)
 
 	def decorator(f: T) -> T:
-		cache = JsonCache(f, paramOpts, invalidateTime, speedQueryFields)
+		cache = JsonCache(f, paramOpts, invalidateTime, speedQueryFields, variedParams)
 
 		@functools.wraps(f)
 		def wrap(*args):

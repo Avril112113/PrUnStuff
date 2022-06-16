@@ -80,15 +80,13 @@ class FIOApi:
 
 	@jsoncache()
 	def allplanets(self):
-		logger.info("allplanets() WARNING: This can take a long time to process.")
+		logger.info("allplanets() WARNING: This can take a moment to process.")
 		data = self.get("/planet/allplanets/full").json()
 		for planetJson in data:
-			self.planet.cacheValue(planetJson, planetJson["PlanetId"])
-			self.planet.cacheValue(planetJson, planetJson["PlanetNaturalId"])
-			self.planet.cacheValue(planetJson, planetJson["PlanetName"])
+			self.planet.cacheValue(planetJson, planetJson["PlanetId"])  # 2nd arg us actually not used because of `variedParams`
 		return data
 
-	@jsoncache(speedQueryFields=["SystemId"])
+	@jsoncache(speedQueryFields=["SystemId"], variedParams={"planet": ("PlanetId", "PlanetNaturalId", "PlanetName")})
 	def planet(self, planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -138,7 +136,7 @@ class FIOApi:
 	def mysites(self):
 		return self.sites(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6), variedParams={"planet": ("PlanetId", "PlanetNaturalId", "PlanetName")})
 	def site(self, username: str, planet: str):
 		logger.info(f"sites(\"{username}\", \"{planet}\")")
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
