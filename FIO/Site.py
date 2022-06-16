@@ -19,6 +19,9 @@ class SiteBuilding:
 	def __repr__(self):
 		return f"<SiteBuilding `{self.buildingId}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.buildingId))
 
@@ -40,6 +43,9 @@ class Site:
 
 	def __repr__(self):
 		return f"<Site `{self.siteId}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.siteId))

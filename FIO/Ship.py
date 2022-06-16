@@ -44,6 +44,9 @@ class Ship:
 	def __repr__(self):
 		return f"<Ship `{self.registration}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.shipId))
 

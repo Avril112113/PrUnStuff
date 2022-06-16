@@ -2,8 +2,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from dateutil.parser import isoparse
 
-from .System import System
-from .Planet import Planet
 from .Location import Location
 from .utils import formatTimedelta
 
@@ -21,6 +19,9 @@ class FlightLine:
 
 	def __repr__(self):
 		return f"<FlightLine `{self.lineId}>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.lineId))
@@ -50,6 +51,9 @@ class FlightSegment:
 
 	def __repr__(self):
 		return f"<FlightSegment `{self.origin}` -> `{self.destination}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.flight.flightId, self.origin, self.destination))
@@ -82,6 +86,9 @@ class Flight:
 
 	def __repr__(self):
 		return f"<Flight `{self.flightId}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.flightId))

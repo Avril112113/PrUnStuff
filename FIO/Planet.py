@@ -149,6 +149,9 @@ class Planet:
 	def __repr__(self):
 		return f"<Planet `{self.planetNaturalId}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.planetId))
 

@@ -24,6 +24,9 @@ class MaterialExchangeOrder:
 	def __repr__(self):
 		return f"<MaterialExchangeOrder `{self.itemCount}x{self.materialExchange.material.ticker}` {self.itemCost:.2f} {self.materialExchange.currency} @ `{self.materialExchange.exchangeCode}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.orderId))
 
@@ -292,6 +295,9 @@ class Exchange:
 
 	def __repr__(self):
 		return f"<Exchange `{self.comexCode}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.comexId))

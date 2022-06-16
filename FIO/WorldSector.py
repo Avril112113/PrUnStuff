@@ -16,6 +16,9 @@ class SubSector:
 	def __repr__(self):
 		return f"<SubSector `{self.ssId}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.ssId))
 
@@ -34,6 +37,9 @@ class WorldSector:
 
 	def __repr__(self):
 		return f"<WorldSector `{self.name}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.sectorId))

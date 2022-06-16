@@ -52,6 +52,9 @@ class Storage:
 	def __repr__(self):
 		return f"<Storage `{self.storageId}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.storageId))
 

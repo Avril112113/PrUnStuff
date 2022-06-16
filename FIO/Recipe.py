@@ -20,6 +20,9 @@ class RecipeMaterial:
 	def __repr__(self):
 		return f"<RecipeMaterial `{self.amount}x{self.materialTicker}`>"
 
+	def __eq__(self, other):
+		return hash(self) == hash(other)
+
 	def __hash__(self):
 		return hash((self.__class__, self.amount, self.materialTicker))
 
@@ -48,6 +51,9 @@ class Recipe:
 
 	def __repr__(self):
 		return f"<Recipe `{self.recipeName}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.recipeName))
