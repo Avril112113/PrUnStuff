@@ -192,7 +192,7 @@ class FIOApi:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def ships(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/ships/{username}").json()
@@ -200,7 +200,7 @@ class FIOApi:
 	def myships(self):
 		return self.ships(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def shipsfuel(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/ships/fuel/{username}").json()
@@ -208,7 +208,7 @@ class FIOApi:
 	def myshipsfuel(self):
 		return self.shipsfuel(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def flights(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/flights/{username}").json()

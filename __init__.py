@@ -96,7 +96,6 @@ class PrUnStuff:
 		recipesForTarget = []
 		requirementsRecipes = {}
 		for recipe in recipes:
-			building = recipe.building
 			if recipe.isMaterialOutput(material):
 				recipesForTarget.append(recipe)
 			for outputMaterial in recipe.outputs.values():

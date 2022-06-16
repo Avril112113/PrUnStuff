@@ -15,8 +15,8 @@ class Material:
 		self.name: str = json["Name"]
 		self.matId: str = json["MatId"]
 		self.ticker: str = json["Ticker"]
-		self.weight: str = json["Weight"]
-		self.volume: str = json["Volume"]
+		self.weight: float = json["Weight"]
+		self.volume: float = json["Volume"]
 		self.userNameSubmitted: str = json["UserNameSubmitted"]
 		self.timestamp: str = json["Timestamp"]
 

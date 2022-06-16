@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 class SubSector:
 	def __init__(self, json: dict, fio: "FIO"):
-		self.vertices = list((vert["X"], vert["Y"], vert["Z"]) for vert in json["Vertices"])
-		self.ssId = json["SSId"]
+		self.vertices: list[tuple[float, float, float]] = list((vert["X"], vert["Y"], vert["Z"]) for vert in json["Vertices"])
+		self.ssId: str = json["SSId"]
 
 	def __repr__(self):
 		return f"<SubSector `{self.ssId}`>"
@@ -23,14 +23,14 @@ class SubSector:
 class WorldSector:
 	def __init__(self, json: dict, fio: "FIO"):
 		self.subSectors = list(SubSector(subSector, fio) for subSector in json["SubSectors"])
-		self.sectorId = json["SectorId"]
-		self.name = json["Name"]
-		self.hexQ = json["HexQ"]
-		self.hexR = json["HexR"]
-		self.hexS = json["HexS"]
-		self.size = json["Size"]
-		self.userNameSubmitted = json["UserNameSubmitted"]
-		self.timestamp = json["Timestamp"]
+		self.sectorId: str = json["SectorId"]
+		self.name: str = json["Name"]
+		self.hexQ: int = json["HexQ"]
+		self.hexR: int = json["HexR"]
+		self.hexS: int = json["HexS"]
+		self.size: int = json["Size"]
+		self.userNameSubmitted: str = json["UserNameSubmitted"]
+		self.timestamp: str = json["Timestamp"]
 
 	def __repr__(self):
 		return f"<WorldSector `{self.name}`>"

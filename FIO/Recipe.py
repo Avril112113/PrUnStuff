@@ -40,10 +40,10 @@ class Recipe:
 		for recipeOutputJson in json["Outputs"]:
 			recipeOutput = RecipeMaterial(recipeOutputJson, fio)
 			self.outputs[recipeOutput.material] = recipeOutput
-		self.timeMs = json.get("DurationMs", json.get("TimeMs", None))
+		self.timeMs: int = json.get("DurationMs", json.get("TimeMs", None))
 		self.timeDelta = timedelta(milliseconds=self.timeMs)
-		self.recipeName = json["RecipeName"]
-		self.buildingTicker = json["BuildingTicker"] if building is None else building.ticker
+		self.recipeName: str = json["RecipeName"]
+		self.buildingTicker: str = json["BuildingTicker"] if building is None else building.ticker
 		self._building = None if building is None else building
 
 	def __repr__(self):

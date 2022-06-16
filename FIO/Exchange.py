@@ -1,7 +1,7 @@
 from datetime import datetime
 from dateutil.parser import isoparse
 from functools import total_ordering
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ..utils import formatTimedelta
 from .Material import Material
@@ -14,12 +14,12 @@ if TYPE_CHECKING:
 class MaterialExchangeOrder:
 	def __init__(self, json: dict, materialExchange: "MaterialExchange", fio: "FIO"):
 		self.materialExchange = materialExchange
-		self.orderId = json["OrderId"]
-		self.companyId = json["CompanyId"]
-		self.companyName = json["CompanyName"]
-		self.companyCode = json["CompanyCode"]
-		self.itemCount = json["ItemCount"]
-		self.itemCost = json["ItemCost"]
+		self.orderId: str = json["OrderId"]
+		self.companyId: str = json["CompanyId"]
+		self.companyName: str = json["CompanyName"]
+		self.companyCode: str = json["CompanyCode"]
+		self.itemCount: int = json["ItemCount"]
+		self.itemCost: float = json["ItemCost"]
 
 	def __repr__(self):
 		return f"<MaterialExchangeOrder `{self.itemCount}x{self.materialExchange.material.ticker}` {self.itemCost:.2f} {self.materialExchange.currency} @ `{self.materialExchange.exchangeCode}`>"
@@ -43,36 +43,36 @@ class MaterialExchange:
 		self.fio = fio
 
 		self.material = fio.getMaterial(json["MaterialTicker"])
-		self.exchangeCode = json["ExchangeCode"]
-		self.mmBuy = json["MMBuy"]
-		self.mmSell = json["MMSell"]
-		self.priceAverage = json["PriceAverage"]
-		self.ask = json["Ask"]
-		self.askCount = json["AskCount"]
-		self.supply = json["Supply"]
-		self.bid = json["Bid"]
-		self.bidCount = json["BidCount"]
-		self.demand = json["Demand"]
-		self._buyingOrders = None
-		self._sellingOrders = None
-		self._cxDataModelId = None
-		self._exchangeName = None
-		self._currency = None
-		self._previous = None
-		self._price = None
-		self._priceTimeEpochMs = None
-		self._high = None
-		self._allTimeHigh = None
-		self._low = None
-		self._allTimeLow = None
-		self._traded = None
-		self._volumeAmount = None
-		self._narrowPriceBandLow = None
-		self._narrowPriceBandHigh = None
-		self._widePriceBandLow = None
-		self._widePriceBandHigh = None
-		self._userNameSubmitted = None
-		self._timestamp = None
+		self.exchangeCode: str = json["ExchangeCode"]
+		self.mmBuy: float = json["MMBuy"]
+		self.mmSell: float = json["MMSell"]
+		self.priceAverage: float = json["PriceAverage"]
+		self.ask: float = json["Ask"]
+		self.askCount: int = json["AskCount"]
+		self.supply: int = json["Supply"]
+		self.bid: float = json["Bid"]
+		self.bidCount: int = json["BidCount"]
+		self.demand: int = json["Demand"]
+		self._buyingOrders: Optional[list[MaterialExchangeOrder]] = None
+		self._sellingOrders: Optional[list[MaterialExchangeOrder]] = None
+		self._cxDataModelId: Optional[str] = None
+		self._exchangeName: Optional[str] = None
+		self._currency: Optional[str] = None
+		self._previous: Optional[any] = None  # Unknown type
+		self._price: Optional[float] = None
+		self._priceTimeEpochMs: Optional[int] = None
+		self._high: Optional[float] = None
+		self._allTimeHigh: Optional[float] = None
+		self._low: Optional[float] = None
+		self._allTimeLow: Optional[float] = None
+		self._traded: Optional[int] = None
+		self._volumeAmount: Optional[float] = None
+		self._narrowPriceBandLow: Optional[float] = None
+		self._narrowPriceBandHigh: Optional[float] = None
+		self._widePriceBandLow: Optional[float] = None
+		self._widePriceBandHigh: Optional[float] = None
+		self._userNameSubmitted: Optional[str] = None
+		self._timestamp: Optional[str] = None
 		self._update(json)
 
 	def __repr__(self):
@@ -266,29 +266,29 @@ class Exchange:
 	def __init__(self, json: dict, fio: "FIO"):
 		self.fio = fio
 
-		self.naturalId = json["NaturalId"]
-		self.name = json["Name"]
-		self.systemId = json["SystemId"]
-		self.systemNaturalId = json["SystemNaturalId"]
-		self.systemName = json["SystemName"]
-		self.commisionTimeEpochMs = json["CommisionTimeEpochMs"]
-		self.comexId = json["ComexId"]
-		self.comexName = json["ComexName"]
-		self.comexCode = json["ComexCode"]
-		self.warehouseId = json["WarehouseId"]
-		self.countryCode = json["CountryCode"]
-		self.countryName = json["CountryName"]
-		self.currencyNumericCode = json["CurrencyNumericCode"]
-		self.currencyCode = json["CurrencyCode"]
-		self.currencyName = json["CurrencyName"]
-		self.currencyDecimals = json["CurrencyDecimals"]
-		self.governorId = json["GovernorId"]
-		self.governorUserName = json["GovernorUserName"]
-		self.governorCorporationId = json["GovernorCorporationId"]
-		self.governorCorporationName = json["GovernorCorporationName"]
-		self.governorCorporationCode = json["GovernorCorporationCode"]
-		self.userNameSubmitted = json["UserNameSubmitted"]
-		self.timestamp = json["Timestamp"]
+		self.naturalId: str = json["NaturalId"]
+		self.name: str = json["Name"]
+		self.systemId: str = json["SystemId"]
+		self.systemNaturalId: str = json["SystemNaturalId"]
+		self.systemName: str = json["SystemName"]
+		self.commisionTimeEpochMs: int = json["CommisionTimeEpochMs"]
+		self.comexId: str = json["ComexId"]
+		self.comexName: str = json["ComexName"]
+		self.comexCode: str = json["ComexCode"]
+		self.warehouseId: str = json["WarehouseId"]
+		self.countryCode: str = json["CountryCode"]
+		self.countryName: str = json["CountryName"]
+		self.currencyNumericCode: str = json["CurrencyNumericCode"]
+		self.currencyCode: str = json["CurrencyCode"]
+		self.currencyName: str = json["CurrencyName"]
+		self.currencyDecimals: int = json["CurrencyDecimals"]
+		self.governorId: str = json["GovernorId"]
+		self.governorUserName: str = json["GovernorUserName"]
+		self.governorCorporationId: str = json["GovernorCorporationId"]
+		self.governorCorporationName: str = json["GovernorCorporationName"]
+		self.governorCorporationCode: str = json["GovernorCorporationCode"]
+		self.userNameSubmitted: str = json["UserNameSubmitted"]
+		self.timestamp: str = json["Timestamp"]
 
 	def __repr__(self):
 		return f"<Exchange `{self.comexCode}`>"

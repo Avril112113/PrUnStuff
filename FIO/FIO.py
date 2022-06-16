@@ -123,15 +123,15 @@ class FIO:
 	def getShips(self, username: Optional[str]):
 		username = self.api.default_name if username is None else username
 		data = self.api.ships(username)
-		return [Ship(ship, self, username, data["UserNameSubmitted"], data["Timestamp"]) for ship in data["Ships"]]
+		return {ship["ShipId"]: Ship(ship, self, username, data["UserNameSubmitted"], data["Timestamp"]) for ship in data["Ships"]}
 
 	@lru_cache
 	def getMyShips(self):
 		return self.getShips(None)
 
 	@lru_cache
-	def getShip(self, username: Optional[str], idOrRegistration: str):
-		for ship in self.getShips(username):
+	def getShip(self, username: Optional[str], idOrRegistration: str) -> Optional[Ship]:
+		for ship in self.getShips(username).values():
 			if ship.shipId == idOrRegistration or ship.registration == idOrRegistration:
 				return ship
 		return None
@@ -159,17 +159,17 @@ class FIO:
 		return self.getShipFuel(None, idOrRegistration)
 
 	@lru_cache
-	def getFlights(self, username: Optional[str]):
+	def getFlights(self, username: Optional[str]) -> dict[str, Flight]:
 		username = self.api.default_name if username is None else username
 		data = self.api.flights(username)
-		return [Flight(flight, self, username, data["UserNameSubmitted"], data["Timestamp"]) for flight in data["Flights"]]
+		return {flight["FlightId"]: Flight(flight, self, username, data["UserNameSubmitted"], data["Timestamp"]) for flight in data["Flights"]}
 
 	def getMyFlights(self):
 		return self.getFlights(None)
 
 	@lru_cache
 	def getFlight(self, username: Optional[str], idOrShipIdOrShipRegistration: str):
-		for flight in self.getFlights(username):
+		for flight in self.getFlights(username).values():
 			if \
 				flight.flightId == idOrShipIdOrShipRegistration or \
 				flight.ship.shipId == idOrShipIdOrShipRegistration or \
@@ -201,5 +201,11 @@ class FIO:
 		"""
 		return self.getSystemsMap().get(systemId, None)
 
+	@lru_cache
 	def getWorldSectors(self):
 		return {worldSectorJson["SectorId"]: WorldSector(worldSectorJson, self) for worldSectorJson in self.api.systemstarsworldsectors()}
+
+	@lru_cache
+	def getWorldSector(self, sectorId: str):
+		return self.getWorldSectors().get(sectorId, None)
+

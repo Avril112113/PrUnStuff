@@ -12,14 +12,22 @@ if TYPE_CHECKING:
 
 class StorageItem:
 	def __init__(self, json: dict, fio: "FIO"):
+		self.fio = fio
+
 		# NOTE: some fields was removed, since they can be accessed via `self.material`
-		self.material = fio.getMaterial(json["MaterialTicker"])
+		self.materialId = json["MaterialId"]
+		self.materialName = json["MaterialName"]
+		self.materialTicker = json["MaterialTicker"]
 		self.materialAmount = json["MaterialAmount"]
 		self.materialValue = json["MaterialValue"]
 		self.materialValueCurrency = json["MaterialValueCurrency"]
 		self.type = json["Type"]
 		self.totalWeight = json["TotalWeight"]
 		self.totalVolume = json["TotalVolume"]
+
+	@property
+	def material(self):
+		return self.fio.getMaterial(self.materialTicker)
 
 
 class Storage:
@@ -29,17 +37,17 @@ class Storage:
 		self.storageItems = {}
 		for item in json["StorageItems"]:
 			self.storageItems[fio.getMaterial(item["MaterialTicker"])] = StorageItem(item, fio)
-		self.storageId = json["StorageId"]
-		self.addressableId = json["AddressableId"]
-		self.name = json["Name"]
-		self.weightLoad = json["WeightLoad"]
-		self.weightCapacity = json["WeightCapacity"]
-		self.volumeLoad = json["VolumeLoad"]
-		self.volumeCapacity = json["VolumeCapacity"]
-		self.fixedStore = json["FixedStore"]
-		self.type = json["Type"]
-		self.userNameSubmitted = json["UserNameSubmitted"]
-		self.timestamp = json["Timestamp"]
+		self.storageId: str = json["StorageId"]
+		self.addressableId: str = json["AddressableId"]
+		self.name: str = json["Name"]
+		self.weightLoad: float = json["WeightLoad"]
+		self.weightCapacity: float = json["WeightCapacity"]
+		self.volumeLoad: float = json["VolumeLoad"]
+		self.volumeCapacity: float = json["VolumeCapacity"]
+		self.fixedStore: bool = json["FixedStore"]
+		self.type: str = json["Type"]
+		self.userNameSubmitted: str = json["UserNameSubmitted"]
+		self.timestamp: str = json["Timestamp"]
 
 	def __repr__(self):
 		return f"<Storage `{self.storageId}`>"
@@ -64,3 +72,6 @@ class Storage:
 		if item is None:
 			return 0
 		return item.materialAmount
+
+	def __contains__(self, material: Material):
+		return self.storageItems.get(material, None) is not None

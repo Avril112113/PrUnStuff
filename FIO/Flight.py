@@ -1,8 +1,11 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from dateutil.parser import isoparse
 
-from ..utils import formatTimedelta
+from .System import System
+from .Planet import Planet
+from .utils import formatTimedelta, parseLocation
+
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -25,6 +28,7 @@ class FlightLine:
 class FlightSegment:
 	def __init__(self, json: dict, fio: "FIO", flight: "Flight"):
 		self.flight = flight
+
 		self.originLines = []
 		for lineJson in json["OriginLines"]:
 			self.originLines.append(FlightLine(lineJson, fio))
@@ -57,19 +61,27 @@ class Flight:
 		self.userNameSubmitted = userNameSubmitted
 		self.timestamp = timestamp
 
-		self.segments = json["Segments"]
-		self.flightId = json["FlightId"]
-		self.shipId = json["ShipId"]
-		self.origin = json["Origin"]
-		self.destination = json["Destination"]
-		self.departureTimeEpochMs = json["DepartureTimeEpochMs"]
+		self.segments = []
+		for segmentJson in json["Segments"]:
+			self.segments.append(FlightSegment(segmentJson, fio, self))
+		self.flightId: str = json["FlightId"]
+		self.shipId: str = json["ShipId"]
+		self.origin: str = json["Origin"]
+		self.destination: str = json["Destination"]
+		self.departureTimeEpochMs: int = json["DepartureTimeEpochMs"]
 		self.departureDatetime = datetime.fromtimestamp(self.departureTimeEpochMs/1000)
-		self.arrivalTimeEpochMs = json["ArrivalTimeEpochMs"]
+		self.arrivalTimeEpochMs: int = json["ArrivalTimeEpochMs"]
 		self.arrivalDatetime = datetime.fromtimestamp(self.arrivalTimeEpochMs/1000)
-		self.currentSegmentIndex = json["CurrentSegmentIndex"]
-		self.stlDistance = json["StlDistance"]
-		self.ftlDistance = json["FtlDistance"]
-		self.isAborted = json["IsAborted"]
+		self.currentSegmentIndex: int = json["CurrentSegmentIndex"]
+		self.stlDistance: int = json["StlDistance"]
+		self.ftlDistance: int = json["FtlDistance"]
+		self.isAborted: bool = json["IsAborted"]
+		self._originSystem: Optional[System] = None
+		self._originPlanet: Optional[Planet] = None
+		self._originOtherPlaceName: Optional[Planet] = None
+		self._destinationSystem: Optional[System] = None
+		self._destinationPlanet: Optional[Planet] = None
+		self._destinationOtherPlaceName: Optional[Planet] = None
 
 	def __repr__(self):
 		return f"<Flight `{self.flightId}`>"
@@ -80,6 +92,42 @@ class Flight:
 	@property
 	def ship(self):
 		return self.fio.getShip(self.username, self.shipId)
+
+	@property
+	def originSystem(self):
+		if self._originSystem is None:
+			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
+		return self._originSystem
+
+	@property
+	def originPlanet(self):
+		if self._originPlanet is None:
+			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
+		return self._originPlanet
+
+	@property
+	def originOtherPlaceName(self):
+		if self._originOtherPlaceName is None:
+			self._originSystem, self._originPlanet, self._originOtherPlaceName = parseLocation(self.fio, self.origin)
+		return self._originOtherPlaceName
+
+	@property
+	def destinationSystem(self):
+		if self._destinationSystem is None:
+			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
+		return self._destinationSystem
+
+	@property
+	def destinationPlanet(self):
+		if self._destinationPlanet is None:
+			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
+		return self._destinationPlanet
+
+	@property
+	def destinationOtherPlaceName(self):
+		if self._destinationOtherPlaceName is None:
+			self._destinationSystem, self._destinationPlanet, self._destinationOtherPlaceName = parseLocation(self.fio, self.destination)
+		return self._destinationOtherPlaceName
 
 	@property
 	def datetime(self):

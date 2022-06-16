@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from dateutil.parser import isoparse
 
 from ..utils import formatTimedelta
@@ -14,20 +14,20 @@ class System:
 		self._planets = None
 
 		self.connections = json["Connections"]
-		self.systemId = json["SystemId"]
-		self.name = json["Name"]
-		self.naturalId = json["NaturalId"]
-		self.type = json["Type"]
-		self.positionX = json["PositionX"]
-		self.positionY = json["PositionY"]
-		self.positionZ = json["PositionZ"]
-		self.sectorId = json["SectorId"]
-		self.subSectorId = json["SubSectorId"]
-		self.userNameSubmitted = json["UserNameSubmitted"]
-		self.timestamp = json["Timestamp"]
-		self._luminosity = None
-		self._mass = None
-		self._massSol = None
+		self.systemId: str = json["SystemId"]
+		self.name: str = json["Name"]
+		self.naturalId: str = json["NaturalId"]
+		self.type: str = json["Type"]
+		self.positionX: float = json["PositionX"]
+		self.positionY: float = json["PositionY"]
+		self.positionZ: float = json["PositionZ"]
+		self.sectorId: str = json["SectorId"]
+		self.subSectorId: str = json["SubSectorId"]
+		self.userNameSubmitted: str = json["UserNameSubmitted"]
+		self.timestamp: str = json["Timestamp"]
+		self._luminosity: Optional[float] = None
+		self._mass: Optional[float] = None
+		self._massSol: Optional[float] = None
 		self._update(json)
 
 	def __repr__(self):
@@ -82,8 +82,11 @@ class System:
 					if planet.systemId == self.systemId:
 						self._planets[planet.planetId] = planet
 			else:
-				# This may contain duplicate planets with different values (PlanetName, PlanetId etc)
 				for result in self.fio.api.planet.speedQuery("SystemId", self.systemId):
 					planet = self.fio.getPlanet(result["planet"])
-					self._planets[planet.planetId] = planet  # This will remove duplicates
+					self._planets[planet.planetId] = planet
 		return self._planets
+
+	@property
+	def sector(self):
+		return self.fio.getWorldSector(self.sectorId)
