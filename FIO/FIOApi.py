@@ -4,7 +4,7 @@ import requests
 import logging
 
 from .FIOExceptions import *
-from .jsoncache import jsoncache, ParamOpts
+from .dbcache import dbcache, ParamOpts
 
 
 logger = logging.getLogger("FIOApi")
@@ -61,7 +61,7 @@ class FIOApi:
 			return True, name
 		return False, None
 
-	@jsoncache()
+	@dbcache()
 	def allbuildings(self):
 		logger.info("allbuildings()")
 		data = self.get("/building/allbuildings").json()
@@ -69,7 +69,7 @@ class FIOApi:
 			self.building.cacheValue(buildingJson, buildingJson["Ticker"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def building(self, ticker: str):
 		logger.info(f"building(\"{ticker}\")")
 		return self.get(
@@ -78,7 +78,7 @@ class FIOApi:
 			exceptionArgs=(ticker,)
 		).json()
 
-	@jsoncache()
+	@dbcache()
 	def allplanets(self):
 		logger.info("allplanets() WARNING: This can take a moment to process.")
 		data = self.get("/planet/allplanets/full").json()
@@ -86,7 +86,7 @@ class FIOApi:
 			self.planet.cacheValue(planetJson, planetJson["PlanetId"])  # 2nd arg us actually not used because of `variedParams`
 		return data
 
-	@jsoncache(speedQueryFields=["SystemId"], variedParams={"planet": ("PlanetId", "PlanetNaturalId", "PlanetName")})
+	@dbcache(speedQueryFields=["SystemId"], variedParams={"planet": ("PlanetId", "PlanetNaturalId", "PlanetName")})
 	def planet(self, planet: str):
 		"""
 		:param planet: 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -98,7 +98,7 @@ class FIOApi:
 			exceptionArgs=(planet,)
 		).json()
 
-	@jsoncache()
+	@dbcache()
 	def allmaterials(self):
 		logger.info("allmaterials()")
 		data = self.get("/material/allmaterials").json()
@@ -106,7 +106,7 @@ class FIOApi:
 			self.material.cacheValue(materialJson, materialJson["Ticker"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def material(self, ticker: str):
 		logger.info(f"material(\"{ticker}\")")
 		return self.get(
@@ -115,7 +115,7 @@ class FIOApi:
 			exceptionArgs=(ticker,)
 		).json()
 
-	@jsoncache()
+	@dbcache()
 	def allrecipes(self):
 		logger.info("allrecipes()")
 		data = self.get("/recipes/allrecipes").json()
@@ -123,12 +123,12 @@ class FIOApi:
 			self.recipes.cacheValue(recipeJson, recipeJson["RecipeName"])
 		return data
 
-	@jsoncache()
+	@dbcache()
 	def recipes(self, ticker: str):
 		logger.info(f"recipes(\"{ticker}\")")
 		return self.get(f"/recipes/{ticker}").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def sites(self, username: str):
 		logger.info(f"sites(\"{username}\")")
 		return self.get(f"/sites/{username.upper()}").json()
@@ -136,7 +136,7 @@ class FIOApi:
 	def mysites(self):
 		return self.sites(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def site(self, username: str, planet: str):
 		logger.info(f"sites(\"{username}\", \"{planet}\")")
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
@@ -144,7 +144,7 @@ class FIOApi:
 	def mysite(self, planet: str):
 		return self.site(self.default_name, planet)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storages(self, username: str):
 		logger.info(f"storages(\"{username}\")")
 		return self.get(f"/storage/{username.upper()}").json()
@@ -152,7 +152,7 @@ class FIOApi:
 	def mystorages(self):
 		return self.storages(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def storage(self, username: str, storageDescription: str):
 		"""
 		:param storageDescription: 'StorageId', 'PlanetId', 'PlanetNaturalId' or 'PlanetName'
@@ -166,17 +166,17 @@ class FIOApi:
 		"""
 		return self.storage(self.default_name, storageDescription)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
+	@dbcache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def exchange(self, material: str, commodityExchange: str):
 		logger.info(f"exchange(\"{material}\", \"{commodityExchange}\")")
 		return self.get(f"/exchange/{material.upper()}.{commodityExchange.upper()}").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def exchangestation(self):
 		logger.info(f"exchangestation()")
 		return self.get(f"/exchange/station").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def exchangeall(self):
 		logger.info(f"exchangeall()")
 		data = self.get(f"/exchange/all").json()
@@ -184,7 +184,7 @@ class FIOApi:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
 	def exchangefull(self):
 		logger.info(f"exchangefull()")
 		data = self.get(f"/exchange/full").json()
@@ -192,7 +192,7 @@ class FIOApi:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
 		return data
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def ships(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/ships/{username}").json()
@@ -200,7 +200,7 @@ class FIOApi:
 	def myships(self):
 		return self.ships(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def shipsfuel(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/ships/fuel/{username}").json()
@@ -208,7 +208,7 @@ class FIOApi:
 	def myshipsfuel(self):
 		return self.shipsfuel(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
 	def flights(self, username: str):
 		logger.info(f"ships(\"{username}\")")
 		return self.get(f"/ship/flights/{username}").json()
@@ -216,17 +216,17 @@ class FIOApi:
 	def myflights(self):
 		return self.flights(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def systemstars(self):
 		logger.info(f"systemstars()")
 		return self.get(f"/systemstars").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def systemstarsworldsectors(self):
 		logger.info(f"systemstarsworldsectors()")
 		return self.get(f"/systemstars/worldsectors").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def systemstarsstar(self, star: str):
 		"""
 		:param star: SystemId, SystemName or SystemNaturalId
@@ -234,7 +234,7 @@ class FIOApi:
 		logger.info(f"systemstarsstar(\"{star}\")")
 		return self.get(f"/systemstars/star/{star}").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def systemstarjumpcount(self, source: str, destination: str):
 		"""
 		:param source: SystemId, PlanetId, PlanetNaturalId or PlanetName
@@ -243,7 +243,7 @@ class FIOApi:
 		logger.info(f"systemstarjumpcount(\"{source}\", \"{destination}\")")
 		return self.get(f"/systemstars/jumpcount/{source}/{destination}").json()
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)])
+	@dbcache(paramOpts=[ParamOpts(upper=True)])
 	def systemstarjumproute(self, source: str, destination: str):
 		"""
 		:param source: SystemId, PlanetId, PlanetNaturalId or PlanetName

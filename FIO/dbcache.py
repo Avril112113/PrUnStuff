@@ -10,13 +10,6 @@ from peewee import Metadata
 import quickle
 
 
-def jsonCacheHook(dct):
-	if "__class__" in dct:
-		if dct["__class__"] + "datetime":
-			return datetime.fromisoformat(dct["__value__"])
-	return dct
-
-
 class ParamOpts:
 	def __init__(self, upper: bool = False, lower: bool = False):
 		self.upper = upper
@@ -30,7 +23,7 @@ class ParamOpts:
 		return value
 
 
-class JsonCache:
+class DBCache:
 	DATETIME_KEY = "cached_datetime"
 	VALUE_KEY = "cached_value"
 	dbs = {}
@@ -187,7 +180,7 @@ class JsonCache:
 		setattr(wrapper, "speedQuery", self.speedQuery)
 
 
-def jsoncache(
+def dbcache(
 		paramOpts: list[ParamOpts] = None,
 		invalidateTime: timedelta = None,
 		speedQueryFields: list[str] = None,
@@ -195,7 +188,7 @@ def jsoncache(
 	T = typing.TypeVar("T", bound=typing.Callable)
 
 	def decorator(f: T) -> T:
-		cache = JsonCache(f, paramOpts, invalidateTime, speedQueryFields, variedParams)
+		cache = DBCache(f, paramOpts, invalidateTime, speedQueryFields, variedParams)
 
 		@functools.wraps(f)
 		def wrap(*args):

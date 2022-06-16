@@ -80,7 +80,7 @@ class FIO:
 		return self.getSite(None, planet)
 
 	def clearSiteCache(self):
-		self.api.site.clearCache()  # Method from jsoncache.py
+		self.api.site.clearCache()  # Method from dbcache.py
 
 	@lru_cache
 	def getStorage(self, username: Optional[str], storageDescription: str):
@@ -99,7 +99,7 @@ class FIO:
 		return self.getStorage(None, storageDescription)
 
 	def clearStorageCache(self):
-		self.api.storage.clearCache()  # Method from jsoncache.py
+		self.api.storage.clearCache()  # Method from dbcache.py
 
 	@lru_cache
 	def getExchanges(self) -> dict[str, Exchange]:
@@ -114,10 +114,10 @@ class FIO:
 		You are probably looking to use `clearMaterialExchangeCache()` instead...
 		This method clears the cache for the existing stations, not the contents.
 		"""
-		self.api.exchangestation.clearCache()  # Method from jsoncache.py
+		self.api.exchangestation.clearCache()  # Method from dbcache.py
 
 	def clearMaterialExchangeCache(self):
-		self.api.exchange.clearCache()  # Method from jsoncache.py
+		self.api.exchange.clearCache()  # Method from dbcache.py
 
 	@lru_cache
 	def getShips(self, username: Optional[str]):
