@@ -136,7 +136,7 @@ class FIOApi:
 	def mysites(self):
 		return self.sites(self.default_name)
 
-	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6), variedParams={"planet": ("PlanetId", "PlanetNaturalId", "PlanetName")})
+	@jsoncache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=6))
 	def site(self, username: str, planet: str):
 		logger.info(f"sites(\"{username}\", \"{planet}\")")
 		return self.get(f"/sites/{username.upper()}/{planet}").json()
