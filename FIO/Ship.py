@@ -17,7 +17,7 @@ class Ship:
 		self.userNameSubmitted = userNameSubmitted
 		self.timestamp = timestamp
 
-		self.repairMaterials = json["RepairMaterials"]  # TODO:
+		self._repairMaterials = json["RepairMaterials"]
 		self.shipId: str = json["ShipId"]
 		self.storeId: str = json["StoreId"]
 		self.stlFuelStoreId: str = json["StlFuelStoreId"]
@@ -49,6 +49,13 @@ class Ship:
 
 	def __hash__(self):
 		return hash((self.__class__, self.shipId))
+
+	@property
+	def repairMaterials(self):
+		repairMaterials = {}
+		for repairMaterialJson in self._repairMaterials:
+			repairMaterials[self.fio.getMaterial(repairMaterialJson["MaterialTicker"])] = repairMaterialJson["Amount"]
+		return repairMaterials
 
 	@property
 	def flight(self):
