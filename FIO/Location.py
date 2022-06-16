@@ -33,7 +33,10 @@ class Location:
 		if self.planet is not None:
 			parts.append(f"{self.planet.planetName} ({self.planet.planetNaturalId})")
 		if self.atStation:
-			parts.append("STATION")
+			if not ignoreCustom and self.system is not None:
+				parts.append(f"{self.system.name} Station ({self.system.name})")
+			else:
+				parts.append("STATION")
 		# Custom that are not in the FIO Api
 		if not ignoreCustom:
 			if self.inFlight:

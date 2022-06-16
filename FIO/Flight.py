@@ -67,8 +67,8 @@ class Flight:
 			self.segments.append(FlightSegment(segmentJson, fio, self))
 		self.flightId: str = json["FlightId"]
 		self.shipId: str = json["ShipId"]
-		self.origin: str = json["Origin"]
-		self.destination: str = json["Destination"]
+		self.originStr: str = json["Origin"]
+		self.destinationStr: str = json["Destination"]
 		self.departureTimeEpochMs: int = json["DepartureTimeEpochMs"]
 		self.departureDatetime = datetime.fromtimestamp(self.departureTimeEpochMs/1000)
 		self.arrivalTimeEpochMs: int = json["ArrivalTimeEpochMs"]
@@ -91,15 +91,15 @@ class Flight:
 		return self.fio.getShip(self.username, self.shipId)
 
 	@property
-	def originLocation(self):
+	def origin(self):
 		if self._originLocation is None:
-			self._originLocation = Location.fromLocationString(self.fio, self.origin)
+			self._originLocation = Location.fromLocationString(self.fio, self.originStr)
 		return self._originLocation
 
 	@property
-	def destinationLocation(self):
+	def destination(self):
 		if self._destinationLocation is None:
-			self._destinationLocation = Location.fromLocationString(self.fio, self.origin)
+			self._destinationLocation = Location.fromLocationString(self.fio, self.destinationStr)
 		return self._destinationLocation
 
 	@property
