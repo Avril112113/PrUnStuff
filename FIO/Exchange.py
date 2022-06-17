@@ -18,11 +18,11 @@ class MaterialExchangeOrder:
 		self.companyId: str = json["CompanyId"]
 		self.companyName: str = json["CompanyName"]
 		self.companyCode: str = json["CompanyCode"]
-		self.itemCount: int = json["ItemCount"]
+		self.itemCount: int = sys.maxsize if json["ItemCount"] is None else json["ItemCount"]
 		self.itemCost: float = json["ItemCost"]
 
 	def __repr__(self):
-		return f"<MaterialExchangeOrder `{self.itemCount}x{self.materialExchange.material.ticker}` {self.itemCost:.2f} {self.materialExchange.currency} @ `{self.materialExchange.exchangeCode}`>"
+		return f"<MaterialExchangeOrder `{self.formatItemCount()}x{self.materialExchange.material.ticker}` {self.itemCost:.2f} {self.materialExchange.currency} @ `{self.materialExchange.exchangeCode}`>"
 
 	def __eq__(self, other):
 		return hash(self) == hash(other)
@@ -33,12 +33,11 @@ class MaterialExchangeOrder:
 	def __lt__(self, other: "MaterialExchangeOrder"):
 		return self.itemCost < other.itemCost
 
-	def __eq__(self, other: "MaterialExchangeOrder"):
-		return self.itemCost == other.itemCost
+	def formatItemCount(self):
+		return "∞" if self.itemCount == sys.maxsize else str(self.itemCount)
 
 	def format(self):
-		countStr = str(self.itemCount) if self.itemCount is not None else "∞"
-		return f"{self.itemCost:.2f} {self.materialExchange.currency} {countStr:>4}x{self.materialExchange.material.ticker} by {self.companyName}"
+		return f"{self.itemCost:.2f} {self.materialExchange.currency} {self.formatItemCount():>4}x{self.materialExchange.material.ticker} by {self.companyName}"
 
 
 class MaterialExchange:
@@ -80,6 +79,9 @@ class MaterialExchange:
 
 	def __repr__(self):
 		return f"<MaterialExchange `{self.material.ticker}` @ `{self.exchangeCode}`>"
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)
 
 	def __hash__(self):
 		return hash((self.__class__, self.cxDataModelId))
