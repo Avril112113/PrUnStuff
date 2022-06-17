@@ -185,3 +185,36 @@ class PrUnStuff:
 			cost += orderedCost
 		return cost, materialCosts, exchange.currencyCode, requiredMaterials, inStorage
 
+	def getBestMaterialToFrom(self, buyingExchange: Exchange, sellingExchange: Exchange) -> list[tuple[MaterialExchangeOrder, MaterialExchangeOrder, float]]:
+		buyingMaterials = buyingExchange.getAllMaterialExchanges()
+		sellingMaterials = sellingExchange.getAllMaterialExchanges()
+		materialExchanges = []
+		for material, buyExchange in buyingMaterials.items():
+			sellExchange = sellingMaterials[material]
+			buy, sell, profitPerUnit = buyExchange.compare(sellExchange)
+			if profitPerUnit is not None and profitPerUnit > 0:
+				materialExchanges.append((buy, sell, profitPerUnit))
+		materialExchanges.sort(key=lambda t: t[2], reverse=True)
+		return materialExchanges
+
+	def getBestTradeToFrom(self, buyingExchange: Exchange, sellingExchange: Exchange, maxVolume: float, maxWeight: float):
+		"""
+		This will find the material that makes the most profit, filling up to maxVolume/maxWeight
+		This will take into account buying multiple orders
+		:return: list[tuple[buyOrdersUsed, sellOrdersUsed, profit, itemCount, volume, weight]], profit, volume, weight
+		"""
+		volume, weight = 0, 0
+		profit = 0
+		bestExchanges = self.getBestMaterialToFrom(buyingExchange, sellingExchange)
+		materialExchanges = []
+		for buy, sell, profitPerUnit in bestExchanges:
+			if volume + buy.materialExchange.material.volume >= maxVolume or weight + buy.materialExchange.material.weight >= maxWeight:
+				break
+			# TODO: Look into how we got orders but compareAllOrders gives us 0 profit?
+			buyOrdersUsed, sellOrdersUsed, cProfit, itemCount, cVolume, cWeight = buy.materialExchange.compareAllOrders(sell.materialExchange, maxVolume-volume, maxWeight-weight)
+			if cProfit > 0:  # Just to make sure no empty profits are from compareAllOrders()
+				volume += cVolume
+				weight += cWeight
+				profit += cProfit
+				materialExchanges.append((buyOrdersUsed, sellOrdersUsed, cProfit, itemCount, cVolume, cWeight))
+		return materialExchanges, profit, volume, weight

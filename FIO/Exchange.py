@@ -1,10 +1,13 @@
+import math
+import sys
 from datetime import datetime
 from dateutil.parser import isoparse
 from functools import total_ordering
 from typing import TYPE_CHECKING, Optional
 
-from ..utils import formatTimedelta
 from .Material import Material
+from .Location import Location
+from ..utils import formatTimedelta
 
 if TYPE_CHECKING:
 	from .FIO import FIO
@@ -266,6 +269,62 @@ class MaterialExchange:
 	def formatTimedelta(self):
 		return formatTimedelta(self.timedelta)
 
+	def compare(self, materialExchange: "MaterialExchange"):
+		"""Compares this materialExchange's most profitable buying order to the others cheapest selling order"""
+		assert self.material == materialExchange.material, "MaterialExchange.compare() must be between the same material"
+		if len(self.sellingOrders) <= 0 or len(materialExchange.buyingOrders) <= 0:
+			return None, None, None
+		buy = self.sellingOrders[-1]
+		sell = materialExchange.buyingOrders[0]
+		return buy, sell, sell.itemCost - buy.itemCost
+
+	def compareAllOrders(self, materialExchange: "MaterialExchange", maxVolume: float, maxWeight: float, stopIfUnprofitable=True):
+		"""
+		Compares this materialExchange's most profitable buying order to the others cheapest selling order
+		This will fill either maxVolume or maxWeight (or partially if not enough orders) with this materialExchange
+		"""
+		assert self.material == materialExchange.material, "MaterialExchange.compare() must be between the same material"
+		buyOrdersUsed = []
+		sellOrdersUsed = []
+		if len(self.sellingOrders) <= 0 or len(materialExchange.buyingOrders) <= 0:
+			return buyOrdersUsed, sellOrdersUsed, 0, 0, 0, 0
+		volume, weight = 0, 0
+		profit = 0
+		buyOrderIndex = 0  # starts at -1 and gets decremented
+		buyOrder = None
+		buyOrderRemaining = 0
+		sellOrderIndex = -1  # starts at 0 and get incremented
+		sellOrder = None
+		sellOrderRemaining = 0
+		totalItemCount = 0
+		while True:
+			isAvailableBuyAndSellOrder = buyOrderIndex < len(self.buyingOrders) and abs(sellOrderIndex)-1 < len(materialExchange.sellingOrders)
+			if buyOrderRemaining <= 0 and isAvailableBuyAndSellOrder:
+				buyOrderIndex -= 1
+				buyOrder = self.sellingOrders[buyOrderIndex]
+				buyOrdersUsed.append(buyOrder)
+				buyOrderRemaining = buyOrder.itemCount
+			if sellOrderRemaining <= 0 and isAvailableBuyAndSellOrder:
+				sellOrderIndex += 1
+				sellOrder = materialExchange.buyingOrders[sellOrderIndex]
+				sellOrdersUsed.append(sellOrder)
+				sellOrderRemaining = sellOrder.itemCount
+			if sellOrderRemaining <= 0 or buyOrderRemaining <= 0:
+				break
+			profitPerUnit = sellOrder.itemCost - buyOrder.itemCost
+			maxItemCountVolume = math.floor((maxVolume-volume)/self.material.volume)
+			maxItemCountWeight = math.floor((maxWeight-weight)/self.material.weight)
+			itemCount = min(buyOrderRemaining, sellOrderRemaining, maxItemCountVolume, maxItemCountWeight)
+			totalItemCount += itemCount
+			profit += profitPerUnit * itemCount
+			sellOrderRemaining -= itemCount
+			buyOrderRemaining -= itemCount
+			volume += self.material.volume * itemCount
+			weight += self.material.weight * itemCount
+			if volume + self.material.volume >= maxVolume or weight + self.material.weight >= maxWeight:
+				break
+		return buyOrdersUsed, sellOrdersUsed, profit, totalItemCount, volume, weight
+
 
 class Exchange:
 	def __init__(self, json: dict, fio: "FIO"):
@@ -305,6 +364,17 @@ class Exchange:
 		return hash((self.__class__, self.comexId))
 
 	@property
+	def system(self):
+		return self.fio.getSystem(self.systemId)
+
+	@property
+	def location(self):
+		location = Location(self.fio)
+		location.system = self.system
+		location.atStation = True
+		return location
+
+	@property
 	def datetime(self):
 		return isoparse(self.timestamp)
 
@@ -317,3 +387,16 @@ class Exchange:
 
 	def getMaterialExchange(self, material: Material):
 		return MaterialExchange(self.fio.api.exchange(material.ticker, self.comexCode), self.fio)
+
+	def getAllMaterialExchanges(self):
+		# There is no way to just get this exchanges materials :cry:
+		# We *may* have just wanted the info from `exchangefull` but this way we catch every use case, what's the harm?
+		if not self.fio.api.allmaterials.isCached():
+			self.fio.api.allmaterials()
+		if not self.fio.api.exchangefull.isCached():
+			self.fio.api.exchangefull()
+		materialExchanges = {}
+		for data in self.fio.api.exchange.speedQuery("ExchangeCode", self.comexCode):
+			materialExchange = self.getMaterialExchange(self.fio.getMaterial(data["material"]))
+			materialExchanges[materialExchange.material] = materialExchange
+		return materialExchanges

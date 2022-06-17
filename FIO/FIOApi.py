@@ -166,7 +166,7 @@ class FIOApi:
 		"""
 		return self.storage(self.default_name, storageDescription)
 
-	@dbcache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
+	@dbcache(paramOpts=[ParamOpts(upper=True), ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15), speedQueryFields=["ExchangeCode"])
 	def exchange(self, material: str, commodityExchange: str):
 		logger.info(f"exchange(\"{material}\", \"{commodityExchange}\")")
 		return self.get(f"/exchange/{material.upper()}.{commodityExchange.upper()}").json()
@@ -176,7 +176,7 @@ class FIOApi:
 		logger.info(f"exchangestation()")
 		return self.get(f"/exchange/station").json()
 
-	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=30))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def exchangeall(self):
 		logger.info(f"exchangeall()")
 		data = self.get(f"/exchange/all").json()
@@ -184,9 +184,9 @@ class FIOApi:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
 		return data
 
-	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(hours=1))
+	@dbcache(paramOpts=[ParamOpts(upper=True)], invalidateTime=timedelta(minutes=15))
 	def exchangefull(self):
-		logger.info(f"exchangefull()")
+		logger.info(f"exchangefull() WARNING: This can take a moment to process.")
 		data = self.get(f"/exchange/full").json()
 		for exchangeJson in data:
 			self.exchange.cacheValue(exchangeJson, exchangeJson["MaterialTicker"], exchangeJson["ExchangeCode"])
