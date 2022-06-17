@@ -127,26 +127,28 @@ class DBCache:
 		else:
 			return getattr(data, paramName)
 
+	def isCacheInvalid(self, cache: "Model"):
+		invalid = self.invalidateTime is not None and datetime.now() > datetime.fromisoformat(str(cache._modified)) + self.invalidateTime
+		return invalid
+
 	def __call__(self, *rawArgs):
 		startIndex = 1 if self.hasSelf else 0
 		args = [
 			(self.paramOpts[i-startIndex].convert(rawArgs[i]) if (len(self.paramOpts) > i-startIndex and self.paramOpts[i-startIndex] is not None) else rawArgs[i])
 			for i in range(startIndex, len(rawArgs))
 		]
-		dbCache = self.model.get_or_none(self.getQueryExpression(args))
-		if dbCache is not None:
-			invalid = self.invalidateTime is not None and datetime.now() > datetime.fromisoformat(str(dbCache._modified))+self.invalidateTime
-			if not invalid:
-				return quickle.loads(dbCache._data)
+		cache = self.model.get_or_none(self.getQueryExpression(args))
+		if cache is not None and not self.isCacheInvalid(cache):
+			return quickle.loads(cache._data)
 		if self.hasSelf:
 			callResult = self.f(rawArgs[0], *args)
 		else:
 			callResult = self.f(*args)
 		dbFields = self.getModelFieldValues(args, callResult)
-		if dbCache is not None:
+		if cache is not None:
 			for field, value in dbFields.items():
-				setattr(dbCache, field, value)
-			dbCache.save()
+				setattr(cache, field, value)
+			cache.save()
 		else:
 			self.model.create(**dbFields)
 		return callResult
@@ -160,7 +162,10 @@ class DBCache:
 			dbCache.save()
 
 	def isCached(self, *args: str):
-		return self.model.get_or_none(self.getQueryExpression(args)) is not None
+		cache = self.model.get_or_none(self.getQueryExpression(args))
+		if cache is None:
+			return False
+		return not self.isCacheInvalid(cache)
 
 	def speedQuery(self, speedQueryField: str, value: typing.Union[str, int]):
 		fieldName = f"_sq_{speedQueryField}"
